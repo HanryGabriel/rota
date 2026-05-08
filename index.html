@@ -403,9 +403,10 @@
                 <div class="glass-card p-4 lg:p-5 rounded-2xl">
                     <h2 class="text-gradient font-bold text-xs lg:text-sm uppercase tracking-widest mb-4 flex items-center gap-2"><i class="fa-solid fa-folder-open"></i> Tipo de Memorando</h2>
                     <select id="req-tipo" onchange="checkReqSubdivisao(); updateReqDoc()" class="w-full input-premium rounded-xl px-4 py-3 text-xs lg:text-sm appearance-none cursor-pointer border-[#d4af37]/30 focus:border-[#d4af37]">
-                        <option value="Advertência Verbal 1">Advertência Verbal 1</option>
-                        <option value="Advertência Verbal 2">Advertência Verbal 2</option>
-                        <option value="Advertência Verbal 3">Advertência Verbal 3</option>
+                        <option value="Advertência Verbal">Advertência Verbal 1</option>
+                        <option value="Advertência 1">Advertência Verbal 1</option>
+                        <option value="Advertência 2">Advertência Verbal 2</option>
+                        <option value="Advertência 3">Advertência Verbal 3</option>
                         <option value="Advertência de Subdivisão">Advertência de Subdivisão</option>
                         <option value="Rebaixamento">Rebaixamento</option>
                         <option value="Exoneração">Exoneração</option>
@@ -1130,7 +1131,7 @@
             if(!respNome) { highlightError('req-resp-nome'); return triggerNotification("PREENCHA SEU NOME", "error"); }
 
             let url = "";
-            if(tipoReq.includes("Advertência Verbal")) url = CONFIG.WEBHOOKS.ADV_123;
+            if(tipoReq.includes("Advertência")) url = CONFIG.WEBHOOKS.ADV_123;
             else if(tipoReq.includes("Subdivisão")) url = CONFIG.WEBHOOKS.ADV_SUB;
             else if(tipoReq === "Rebaixamento") url = CONFIG.WEBHOOKS.REBAIXAMENTO;
             else if(tipoReq === "Exoneração") url = CONFIG.WEBHOOKS.EXONERACAO;
