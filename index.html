@@ -1,0 +1,1584 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sistema Tático Integrado | ROTA</title>
+    
+    <link rel="preload" href="https://i.imgur.com/iYMxsrl.png" as="image" crossorigin="anonymous">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Share+Tech+Mono&family=Pinyon+Script&family=Teko:wght@400;600&display=swap" rel="stylesheet"> 
+
+    <style>
+        :root {
+            --primary: #d4af37;
+            --primary-hover: #b5952f;
+            --bg-base: #050505;
+            --pd-yellow: #ffef00;
+            --pd-red: #ff3333;
+            --pd-green: #33ff66;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: "Plus Jakarta Sans", sans-serif;
+            background-color: var(--bg-base);
+            color: #e2e8f0;
+            margin: 0;
+            overflow: hidden; 
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(212, 175, 55, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 85% 30%, rgba(255, 255, 255, 0.02) 0%, transparent 40%);
+            background-size: 150% 150%;
+            z-index: -1;
+            animation: pulseGlow 15s infinite alternate ease-in-out;
+            pointer-events: none;
+        }
+        body::after {
+            content: '';
+            position: fixed; inset: 0;
+            background-image: linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+            background-size: 24px 24px;
+            z-index: -2;
+            opacity: 0.7;
+        }
+
+        @keyframes pulseGlow {
+            0% { background-position: 0% 50%; opacity: 0.6; }
+            100% { background-position: 100% 50%; opacity: 1; }
+        }
+
+        /* Tipografia de Documentos */
+        .doc-font { font-family: "Assistant", sans-serif; }
+        .military-font { font-family: 'Share Tech Mono', monospace; }
+        .cert-title { font-family: 'Playfair Display', serif; }
+        .cert-signature { font-family: 'Pinyon Script', cursive; line-height: 0.5; }
+        .pd-font { font-family: 'Teko', sans-serif; }
+
+        /* Scrollbar Elite */
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; transition: all 0.3s; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(212, 175, 55, 0.5); }
+        .custom-scrollbar { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.1) transparent; }
+
+        .glass-panel { 
+            background: rgba(8, 8, 8, 0.85); 
+            backdrop-filter: blur(20px); 
+            border: 1px solid rgba(255, 255, 255, 0.05); 
+        }
+
+        .glass-card {
+            background: rgba(15, 15, 15, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(12px);
+            transition: all 0.3s ease;
+        }
+        .glass-card:hover {
+            border-color: rgba(212, 175, 55, 0.2);
+            background: rgba(20, 20, 20, 0.8);
+            box-shadow: 0 10px 40px -10px rgba(212, 175, 55, 0.05);
+        }
+
+        .text-gradient {
+            background: linear-gradient(135deg, #d4af37 0%, #f3e5ab 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .input-premium {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .input-premium:focus, .input-premium:active {
+            border-color: var(--primary);
+            box-shadow: inset 0 0 0 1px rgba(212, 175, 55, 0.3), 0 0 15px rgba(212, 175, 55, 0.1);
+            background: rgba(0, 0, 0, 0.7);
+            outline: none;
+        }
+        .input-premium:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        @keyframes shakeError {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); border-color: #ef4444; }
+            50% { transform: translateX(5px); border-color: #ef4444; }
+            75% { transform: translateX(-5px); border-color: #ef4444; }
+        }
+        .input-error {
+            animation: shakeError 0.4s ease-in-out;
+            border-color: #ef4444 !important;
+            box-shadow: inset 0 0 0 1px rgba(239, 68, 68, 0.3), 0 0 12px rgba(239, 68, 68, 0.25) !important;
+            background: rgba(239, 68, 68, 0.05) !important;
+        }
+
+        .tab-btn { position: relative; transition: all 0.3s ease; color: rgba(255,255,255,0.4); white-space: nowrap; }
+        .tab-btn:hover { color: white; background: rgba(255,255,255,0.03); }
+        .tab-btn.active { color: var(--primary); background: linear-gradient(to top, rgba(212,175,55,0.05), transparent); }
+        .tab-btn.active::after {
+            content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+            background: var(--primary); box-shadow: 0 -2px 10px rgba(212, 175, 55, 0.5);
+        }
+
+        .dropzone { border: 2px dashed rgba(255,255,255,0.15); transition: all 0.3s ease; background: rgba(0,0,0,0.3); }
+        .dropzone:hover { background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.4); }
+        .dropzone.dragover { border-color: var(--primary); background-color: rgba(212, 175, 55, 0.05); }
+
+        .crime-item { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; }
+        .crime-item:hover { background: rgba(255,255,255,0.03); transform: translateX(4px); border-color: rgba(212, 175, 55, 0.3); }
+        .crime-item.selected { 
+            background: linear-gradient(90deg, rgba(212,175,55,0.1) 0%, transparent 100%);
+            border-color: var(--primary); box-shadow: inset 2px 0 0 0 var(--primary); 
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-up { animation: fadeUp 0.5s ease forwards; }
+
+        
+        /* Container que gerencia o zoom na tela sem afetar o tamanho real do documento */
+        .preview-wrapper {
+            transform-origin: top center;
+            transition: transform 0.3s ease-out;
+            display: flex; justify-content: center;
+        }
+
+        /* Estrutura estrita do Memorando (Retrato) */
+        .doc-req-base {
+            width: 794px; height: 1123px; 
+            background: #fdfdfc; color: #000;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8); 
+            box-sizing: border-box; flex-shrink: 0; position: relative;
+            padding: 40px; 
+        }
+        
+        /* Sistema de Grid Interno do Memorando */
+        .doc-inner-req { border: 2px solid #111; height: 100%; display: flex; flex-direction: column; }
+        .doc-section-mil { border: 2px solid #111; margin-bottom: 20px; }
+        .doc-row-mil { display: flex; border-bottom: 2px solid #111; }
+        .doc-row-mil:last-child { border-bottom: none; }
+        .doc-cell-mil { padding: 10px 14px; border-right: 2px solid #111; display: flex; flex-direction: column; justify-content: center;}
+        .doc-cell-mil:last-child { border-right: none; }
+        .doc-label-mil { font-size: 0.65rem; font-weight: bold; text-transform: uppercase; color: #555; margin-bottom: 2px; letter-spacing: 0.05em; }
+        .doc-value-mil { font-size: 0.95rem; font-weight: 800; color: #000; word-break: break-word; }
+
+        /* Estrutura estrita do Certificado (Paisagem) - Anti-Corte */
+        .doc-cert-base {
+            width: 1123px; height: 794px; 
+            background: #fbf9f1; color: #000;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8); 
+            box-sizing: border-box; flex-shrink: 0; position: relative;
+            padding: 30px; /* Margem externa para a borda preta */
+            background-image: 
+                linear-gradient(rgba(212, 175, 55, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(212, 175, 55, 0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        
+        .cert-black-border {
+            border: 15px solid #1a1a1a; width: 100%; height: 100%; 
+            padding: 15px; box-sizing: border-box; position: relative;
+        }
+
+        .cert-gold-border {
+            border: 4px double #d4af37; width: 100%; height: 100%; 
+            padding: 30px 40px; box-sizing: border-box; position: relative;
+            display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+            background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, transparent 100%);
+        }
+
+        .cert-corner { position: absolute; width: 60px; height: 60px; border: 4px solid #d4af37; }
+        .cert-tl { top: -12px; left: -12px; border-bottom: none; border-right: none; }
+        .cert-tr { top: -12px; right: -12px; border-bottom: none; border-left: none; }
+        .cert-bl { bottom: -12px; left: -12px; border-top: none; border-right: none; }
+        .cert-br { bottom: -12px; right: -12px; border-top: none; border-left: none; }
+
+        #pd-global-container {
+            position: fixed; top: -100px; left: 50%; transform: translateX(-50%); z-index: 999999;
+            display: flex; height: 60px; font-family: 'Teko', sans-serif; transition: top 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.9));
+        }
+        #pd-global-container.active { top: 20px; }
+        
+        .pd-banner {
+            height: 100%; width: 0; color: var(--pd-color, var(--pd-yellow)); margin-right: 0px;
+            transition: all 0.3s ease-in-out; 
+            border-top: 3px solid var(--pd-color, var(--pd-yellow));
+            border-bottom: 3px solid var(--pd-color, var(--pd-yellow));
+            display: flex; align-items: center; overflow: hidden;
+        }
+        .pd-banner.max { margin-right: 10px; width: 650px; }
+        @media(max-width: 768px){ .pd-banner.max { width: 320px; } }
+
+        .pd-box {
+            width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+            background: 
+                linear-gradient(to right, var(--pd-color, var(--pd-yellow)) 4px, transparent 4px) 0 0,
+                linear-gradient(to right, var(--pd-color, var(--pd-yellow)) 4px, transparent 4px) 0 100%,
+                linear-gradient(to left, var(--pd-color, var(--pd-yellow)) 4px, transparent 4px) 100% 0,
+                linear-gradient(to left, var(--pd-color, var(--pd-yellow)) 4px, transparent 4px) 100% 100%,
+                linear-gradient(to bottom, var(--pd-color, var(--pd-yellow)) 4px, transparent 4px) 0 0,
+                linear-gradient(to bottom, var(--pd-color, var(--pd-yellow)) 4px, transparent 4px) 100% 0,
+                linear-gradient(to top, var(--pd-color, var(--pd-yellow)) 4px, transparent 4px) 0 100%,
+                linear-gradient(to top, var(--pd-color, var(--pd-yellow)) 4px, transparent 4px) 100% 100%;
+            background-repeat: no-repeat; background-size: 15px 15px;
+            background-color: rgba(10, 10, 10, 0.98);
+        }
+
+        .pd-banner marquee { text-transform: uppercase; font-size: 32px; font-weight: 600; transform: translateY(2px); color: var(--pd-color, var(--pd-yellow)); letter-spacing: 2px;}
+        
+        .pd-indicator {
+            width: 60px; height: 60px; background-color: var(--pd-color, var(--pd-yellow));
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.6);
+            border: 3px solid #000;
+        }
+
+        @keyframes pdFlicker { 0% { opacity: 1; } 50% { opacity: 0.1; } 100% { opacity: 1; } }
+        @keyframes pdBgFlicker { 
+            0% { background-color: rgba(0,0,0,0.98); } 
+            50% { background-color: var(--pd-bg-flicker, rgba(255, 239, 0, 0.2)); } 
+            100% { background-color: rgba(0,0,0,0.98); } 
+        }
+
+        .pd-flicker { animation: pdFlicker 0.4s infinite; }
+        .pd-flicker-bg { animation: pdBgFlicker 0.8s infinite; }
+
+        #cinematic-intro {
+            position: fixed; inset: 0; background: #020202; z-index: 1000000;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden; cursor: crosshair; transition: opacity 1.5s ease;
+        }
+        .intro-logo {
+            width: 250px; height: auto; object-fit: contain;
+            filter: drop-shadow(0 0 30px rgba(212, 175, 55, 0.5));
+            animation: breatheLogo 4s infinite alternate ease-in-out;
+        }
+        @media(min-width: 768px){ .intro-logo { width: 350px; } }
+        
+        @keyframes breatheLogo {
+            0% { transform: scale(0.98); filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.3)); }
+            100% { transform: scale(1.02); filter: drop-shadow(0 0 40px rgba(212, 175, 55, 0.7)); }
+        }
+
+        #spotlight-mask {
+            position: absolute; inset: 0; pointer-events: none;
+            background: radial-gradient(circle 20vmax at var(--x, 50%) var(--y, 50%), transparent 0%, rgba(2,2,2,0.98) 80%);
+            transition: background 0.1s ease;
+        }
+
+        .intro-text-box { position: absolute; bottom: 15%; text-align: center; pointer-events: none; }
+        .intro-title { font-family: 'Teko', sans-serif; font-size: 3rem; color: #fff; letter-spacing: 0.3em; text-shadow: 0 0 20px rgba(255,255,255,0.5); line-height: 1; }
+        .intro-subtitle { font-family: 'Share Tech Mono', monospace; font-size: 0.9rem; color: #d4af37; letter-spacing: 0.2em; animation: pulseGlow 1.5s infinite alternate; margin-top: 10px; }
+        
+        #flashbang { position: fixed; inset: 0; background: #fff; z-index: 1000001; opacity: 0; pointer-events: none; transition: opacity 2s ease-out; }
+
+        #tour-overlay { position: fixed; inset: 0; z-index: 99997; background: rgba(5, 5, 5, 0.92); backdrop-filter: blur(15px); opacity: 0; pointer-events: none; transition: opacity 0.4s ease; }
+        #tour-overlay.active { opacity: 1; pointer-events: auto; }
+        
+        #tour-modal { 
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.95); z-index: 99998; 
+            opacity: 0; pointer-events: none; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); 
+            width: 95%; max-width: 1000px; height: 90vh; display: flex; flex-direction: column; overflow: hidden;
+            background: rgba(12, 12, 12, 0.95); border: 1px solid rgba(212, 175, 55, 0.2); box-shadow: 0 20px 80px rgba(0,0,0,1);
+        }
+        #tour-modal.active { opacity: 1; transform: translate(-50%, -50%) scale(1); pointer-events: auto; }
+
+        .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+        .accordion-content.open { max-height: 800px; }
+        .crime-acc-btn i.fa-chevron-down { transition: transform 0.3s ease; }
+        .crime-acc-btn.open i.fa-chevron-down { transform: rotate(180deg); }
+    </style>
+</head>
+<body class="flex flex-col h-screen overflow-hidden selection:bg-[#d4af37] selection:text-black relative">
+
+    <div id="cinematic-intro">
+        <img src="https://i.imgur.com/iYMxsrl.png" crossorigin="anonymous" class="intro-logo" alt="ROTA Logo">
+        <div id="spotlight-mask"></div>
+        <div class="intro-text-box">
+            <h1 class="intro-title">SISTEMA TÁTICO</h1>
+            <p class="intro-subtitle">[ CLIQUE PARA INICIAR O TURNO ]</p>
+        </div>
+    </div>
+    <div id="flashbang"></div>
+
+    <div id="pd-global-container">
+        <div class="pd-banner" id="pd-banner">
+            <div class="pd-box" id="pd-box">
+                <marquee id="pd-marquee" behavior="scroll" direction="left" scrollamount="25">/// ALERTA TÁTICO ///</marquee>
+            </div>
+        </div>
+        <div class="pd-indicator" id="pd-indicator">
+            <i id="pd-icon" class="fa-solid fa-skull text-3xl text-black"></i>
+        </div>
+    </div>
+
+    <div class="fixed bottom-3 right-3 lg:bottom-4 lg:right-4 z-50 pointer-events-auto">
+        <a href="https://cvitorsp.github.io" target="_blank" aria-label="Créditos do Desenvolvedor" class="flex items-center gap-2 glass-card px-3 py-1.5 lg:px-4 lg:py-2 rounded-full hover:border-[#d4af37]/50 hover:bg-black/60 transition-all text-[0.6rem] lg:text-[0.65rem] text-slate-400 hover:text-[#d4af37] group shadow-lg">
+            <span>Desenvolvido por <strong class="text-slate-300 group-hover:text-white transition-colors">@cvitorsp</strong></span>
+            <i class="fa-solid fa-globe text-[0.7rem] lg:text-sm"></i>
+        </a>
+    </div>
+
+    <div id="main-app" class="flex flex-col h-full w-full opacity-0 transition-opacity duration-1000" style="display: none;">
+        
+        <header class="glass-panel border-b-0 border-white/5 h-16 lg:h-20 flex items-center justify-between px-3 sm:px-4 lg:px-8 relative z-20 shrink-0">
+            <div class="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+
+            <div class="flex items-center gap-3 lg:gap-5 h-full shrink-0">
+                <div class="w-10 h-10 lg:w-14 lg:h-14 bg-black rounded-full border border-[#d4af37]/30 flex items-center justify-center shadow-[0_0_15px_rgba(212,175,55,0.2)]">
+                    <img src="https://i.imgur.com/iYMxsrl.png" crossorigin="anonymous" fetchpriority="high" alt="ROTA" class="h-6 lg:h-8 object-contain">
+                </div>
+                <div class="flex flex-col justify-center">
+                    <h1 class="pd-font text-white text-xl lg:text-2xl tracking-widest leading-none">ROTA</h1>
+                    <span class="military-font text-[#d4af37] text-[0.6rem] lg:text-[0.7rem] tracking-[0.2em] uppercase">Batalhão Tobias de Aguiar</span>
+                </div>
+            </div>
+
+            <nav class="hidden lg:flex h-full w-auto justify-center">
+                <button onclick="switchTab('req')" class="tab-btn btn-nav-req active h-full px-5 lg:px-6 flex items-center justify-center gap-2 font-bold uppercase text-[0.8rem] tracking-wider">
+                    <i class="fa-solid fa-file-signature text-lg"></i> Requisições
+                </button>
+                <button onclick="switchTab('med')" class="tab-btn btn-nav-med h-full px-5 lg:px-6 flex items-center justify-center gap-2 font-bold uppercase text-[0.8rem] tracking-wider">
+                    <i class="fa-solid fa-medal text-lg"></i> Medalhas
+                </button>
+                <button onclick="switchTab('prisao')" class="tab-btn btn-nav-prisao h-full px-5 lg:px-6 flex items-center justify-center gap-2 font-bold uppercase text-[0.8rem] tracking-wider">
+                    <i class="fa-solid fa-handcuffs text-lg"></i> Prisões (MDT)
+                </button>
+            </nav>
+
+            <div class="hidden lg:flex items-center gap-5">
+                <button onclick="abrirAcademia()" class="flex items-center gap-2 bg-white/5 hover:bg-[#d4af37]/20 border border-white/10 hover:border-[#d4af37]/50 text-slate-300 hover:text-[#d4af37] px-4 py-2 rounded-lg transition-all text-xs font-bold uppercase tracking-widest shadow-sm">
+                    <i class="fa-solid fa-graduation-cap"></i> Academia
+                </button>
+
+                <div class="flex items-center gap-3 bg-black/40 px-4 py-2 rounded-xl border border-white/5 shadow-inner">
+                    <i class="fa-regular fa-clock text-[#d4af37]"></i>
+                    <span id="system-clock-desktop" class="text-xs text-slate-300 font-mono tracking-widest font-bold">00:00:00</span>
+                </div>
+                <button id="btn-mute-desktop" onclick="toggleMute()" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center border border-white/10 hover:border-white/30 transition-all">
+                    <i class="fa-solid fa-volume-high text-[#d4af37]"></i>
+                </button>
+            </div>
+
+            <div class="lg:hidden flex items-center gap-2 sm:gap-4 shrink-0">
+                <button onclick="abrirAcademia()" class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center border border-white/10 text-slate-300">
+                    <i class="fa-solid fa-graduation-cap text-[0.7rem]"></i>
+                </button>
+                <button id="btn-mute-mobile" onclick="toggleMute()" class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
+                    <i class="fa-solid fa-volume-high text-[0.7rem] text-[#d4af37]"></i>
+                </button>
+                <button id="btn-mobile-menu" aria-label="Menu" onclick="toggleMobileMenu()" class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#d4af37]/10 flex items-center justify-center border border-[#d4af37]/30 text-[#d4af37] transition-all">
+                    <i class="fa-solid fa-bars text-base"></i>
+                </button>
+            </div>
+        </header>
+
+        <div id="mobile-menu" class="lg:hidden absolute top-16 sm:top-20 left-0 w-full bg-[#0a0a0a]/95 backdrop-blur-3xl border-b border-white/10 transition-all duration-300 origin-top scale-y-0 opacity-0 flex flex-col shadow-2xl z-40 pointer-events-none">
+            <button onclick="switchTab('req')" class="mob-tab-btn btn-nav-req active p-4 border-b border-white/5 font-bold uppercase text-xs text-slate-400"><i class="fa-solid fa-file-signature text-lg w-6 text-center"></i> Requisições</button>
+            <button onclick="switchTab('med')" class="mob-tab-btn btn-nav-med p-4 border-b border-white/5 font-bold uppercase text-xs text-slate-400"><i class="fa-solid fa-medal text-lg w-6 text-center"></i> Medalhas</button>
+            <button onclick="switchTab('prisao')" class="mob-tab-btn btn-nav-prisao p-4 font-bold uppercase text-xs text-slate-400"><i class="fa-solid fa-handcuffs text-lg w-6 text-center"></i> Prisões</button>
+        </div>
+
+        <div id="view-req" class="flex flex-col lg:flex-row flex-1 overflow-y-auto lg:overflow-hidden animate-fade-up">
+            <aside class="w-full lg:w-1/3 lg:min-w-[420px] lg:max-w-[480px] bg-black/40 border-r border-white/5 overflow-y-visible lg:overflow-y-auto p-4 lg:p-6 flex flex-col gap-4 lg:gap-5 relative z-10 shrink-0 custom-scrollbar">
+                
+                <div class="glass-card p-4 lg:p-5 rounded-2xl">
+                    <h2 class="text-gradient font-bold text-xs lg:text-sm uppercase tracking-widest mb-4 flex items-center gap-2"><i class="fa-solid fa-folder-open"></i> Tipo de Memorando</h2>
+                    <select id="req-tipo" onchange="checkReqSubdivisao(); updateReqDoc()" class="w-full input-premium rounded-xl px-4 py-3 text-xs lg:text-sm appearance-none cursor-pointer border-[#d4af37]/30 focus:border-[#d4af37]">
+                        <option value="Advertência Verbal 1">Advertência Verbal 1</option>
+                        <option value="Advertência Verbal 2">Advertência Verbal 2</option>
+                        <option value="Advertência Verbal 3">Advertência Verbal 3</option>
+                        <option value="Advertência de Subdivisão">Advertência de Subdivisão</option>
+                        <option value="Rebaixamento">Rebaixamento</option>
+                        <option value="Exoneração">Exoneração</option>
+                        <option value="Blacklist">Blacklist (Expulsão Permanente)</option>
+                    </select>
+
+                    <div id="req-subdivisao-box" class="hidden mt-4 animate-fade-up">
+                        <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Nome da Subdivisão <span class="text-red-500">*</span></label>
+                        <input type="text" id="req-subdivisao" oninput="updateReqDoc()" class="w-full input-premium rounded-xl px-4 py-3 text-xs lg:text-sm" placeholder="Ex: Tático Ostensivo">
+                    </div>
+                </div>
+
+                <div class="glass-card p-4 lg:p-5 rounded-2xl">
+                    <h2 class="text-white font-bold text-xs lg:text-sm uppercase tracking-widest mb-4 flex items-center gap-2"><i class="fa-solid fa-user-xmark text-slate-400"></i> Oficial Alvo (Punido)</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Nome Completo <span class="text-red-500">*</span></label>
+                            <input type="text" id="req-alvo-nome" oninput="updateReqDoc()" class="w-full input-premium rounded-xl px-4 py-3 text-xs lg:text-sm" placeholder="Ex: João Silva">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Passaporte <span class="text-red-500">*</span></label>
+                                <input type="text" id="req-alvo-id" oninput="this.value = this.value.replace(/[^0-9]/g, ''); updateReqDoc()" class="w-full input-premium rounded-xl px-4 py-3 text-xs lg:text-sm font-mono" placeholder="Apenas N°">
+                            </div>
+                            <div>
+                                <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Patente / Cargo <span class="text-red-500">*</span></label>
+                                <input type="text" id="req-alvo-patente" oninput="updateReqDoc()" class="w-full input-premium rounded-xl px-4 py-3 text-xs lg:text-sm" placeholder="Ex: Soldado">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Motivo da Sanção <span class="text-red-500">*</span></label>
+                            <textarea id="req-motivo" oninput="updateReqDoc()" rows="3" class="w-full input-premium rounded-xl px-4 py-3 text-xs lg:text-sm resize-none custom-scrollbar" placeholder="Descreva os fatos e violações disciplinares..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-4 lg:p-5 rounded-2xl border-[#d4af37]/30 bg-[#d4af37]/5">
+                    <h2 class="text-gradient font-bold text-xs lg:text-sm uppercase tracking-widest mb-4 flex items-center gap-2"><i class="fa-solid fa-pen-nib"></i> Homologação (Responsável)</h2>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Oficial Responsável <span class="text-red-500">*</span></label>
+                            <input type="text" id="req-resp-nome" oninput="updateReqDoc()" class="w-full input-premium rounded-xl px-4 py-3 text-xs lg:text-sm" placeholder="Seu Nome">
+                        </div>
+                        <div>
+                            <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Comando / Cargo <span class="text-red-500">*</span></label>
+                            <input type="text" id="req-resp-cargo" oninput="updateReqDoc()" class="w-full input-premium rounded-xl px-4 py-3 text-xs lg:text-sm" placeholder="Ex: Comandante">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-3 mt-auto pt-4 mb-4 lg:mb-0">
+                    <button onclick="downloadDocument('doc-req-pdf', 'btn-req-jpg', 'MEMORANDO')" id="btn-req-jpg" class="w-full bg-black/40 hover:bg-white/10 border border-white/10 hover:border-[#d4af37]/50 text-slate-300 hover:text-white font-bold py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 text-xs uppercase tracking-wider active:scale-95"><i class="fa-solid fa-download"></i> Baixar Memorando Local (JPG)</button>
+                    <button onclick="enviarDiscordReq()" id="btn-req-discord" class="w-full bg-gradient-to-r from-[#5865F2] to-[#4752c4] text-white font-extrabold py-4 rounded-xl shadow-[0_0_20px_rgba(88,101,242,0.3)] hover:shadow-[0_0_35px_rgba(88,101,242,0.5)] transition-all flex items-center justify-center gap-2 text-[0.8rem] uppercase tracking-wider active:scale-95"><i class="fa-brands fa-discord text-xl"></i> Transmitir ao Quartel General</button>
+                </div>
+            </aside>
+
+            <main class="w-full lg:flex-1 bg-[#111] relative overflow-auto p-4 lg:p-10 flex justify-center items-start min-h-[600px] custom-scrollbar doc-font" id="preview-req">
+                <div id="preview-req-wrapper" class="preview-wrapper w-full">
+                    <div id="doc-req-pdf" class="doc-req-base">
+                        <div class="doc-inner-req">
+                            <div class="flex-1 p-6">
+                                <div class="w-full flex items-center justify-between border-b-4 border-double border-black pb-4 mb-6">
+                                    <img src="https://i.imgur.com/iYMxsrl.png" crossorigin="anonymous" class="h-20 grayscale opacity-90 object-contain ml-4">
+                                    <div class="text-center flex-1 px-4">
+                                        <h1 class="font-bold text-2xl uppercase tracking-widest leading-tight">Polícia Militar</h1>
+                                        <h2 class="font-semibold text-lg uppercase tracking-wider mt-1 leading-tight">Batalhão Tobias de Aguiar - ROTA</h2>
+                                        <p class="text-[0.65rem] tracking-[0.25em] text-gray-600 mt-2 border-t border-gray-400 pt-1 inline-block">DIVISÃO DE RECURSOS HUMANOS E CORREGEDORIA</p>
+                                    </div>
+                                    <img src="https://i.imgur.com/iYMxsrl.png" crossorigin="anonymous" class="h-20 grayscale opacity-90 scale-x-[-1] object-contain mr-4">
+                                </div>
+
+                                <div class="text-center mb-8">
+                                    <h2 class="font-bold text-xl uppercase underline underline-offset-4 decoration-2" id="doc-req-titulo">MEMORANDO DISCIPLINAR</h2>
+                                    <p class="text-sm font-mono mt-2 text-gray-700 font-bold">PROTOCOLO: <span id="doc-req-proto">#MD-00000</span></p>
+                                </div>
+
+                                <div class="doc-section-mil">
+                                    <div class="doc-row-mil bg-gray-200"><div class="doc-cell-mil w-full text-center py-2"><span class="doc-label-mil !mb-0 text-black">1. QUALIFICAÇÃO DO SERVIDOR (ALVO)</span></div></div>
+                                    <div class="doc-row-mil">
+                                        <div class="doc-cell-mil w-3/5"><span class="doc-label-mil">Nome Completo</span><span class="doc-value-mil uppercase" id="doc-req-alvo-nome">-</span></div>
+                                        <div class="doc-cell-mil w-1/5"><span class="doc-label-mil">Passaporte (ID)</span><span class="doc-value-mil" id="doc-req-alvo-id">-</span></div>
+                                        <div class="doc-cell-mil w-1/5 border-r-0"><span class="doc-label-mil">Patente / Cargo</span><span class="doc-value-mil uppercase" id="doc-req-alvo-patente">-</span></div>
+                                    </div>
+                                </div>
+
+                                <div class="doc-section-mil">
+                                    <div class="doc-row-mil bg-gray-200"><div class="doc-cell-mil w-full text-center py-2"><span class="doc-label-mil !mb-0 text-black">2. NATUREZA DA SANÇÃO</span></div></div>
+                                    <div class="doc-row-mil">
+                                        <div class="doc-cell-mil w-full border-r-0"><span class="doc-label-mil">Tipo de Punição Aplicada</span><span class="doc-value-mil uppercase text-red-700 text-lg" id="doc-req-tipo-sancao">-</span></div>
+                                    </div>
+                                    <div class="doc-row-mil border-b-0">
+                                        <div class="doc-cell-mil w-full border-r-0 min-h-[250px] justify-start pt-4 pb-4">
+                                            <span class="doc-label-mil border-b border-gray-300 pb-1 mb-2 inline-block">Histórico / Fundamentação Legal</span>
+                                            <span class="doc-value-mil mt-2 text-justify font-normal leading-relaxed text-[0.9rem]" id="doc-req-motivo">Nenhum histórico relatado.</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="w-full flex flex-col items-center justify-center pb-12 pt-6 shrink-0 bg-[#fdfdfc]">
+                                <div class="flex flex-col items-center w-full">
+                                    <div class="h-20 flex items-end justify-center mb-1">
+                                        <span class="cert-signature text-black text-6xl" id="doc-req-assinatura"></span>
+                                    </div>
+                                    <div class="w-64 border-t-2 border-black mt-1"></div>
+                                    <span class="block font-bold text-sm uppercase tracking-wider mt-2" id="doc-req-resp-nome">NOME DO OFICIAL</span>
+                                    <span class="block text-xs uppercase text-gray-700 font-semibold tracking-widest mt-0.5" id="doc-req-resp-cargo">CARGO DO OFICIAL</span>
+                                </div>
+                                <span class="block text-[0.65rem] mt-8 font-mono text-gray-500 font-semibold tracking-wider" id="doc-req-data"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <div id="view-med" class="hidden flex-col lg:flex-row flex-1 overflow-y-auto lg:overflow-hidden animate-fade-up">
+            <aside class="w-full lg:w-1/3 lg:min-w-[420px] lg:max-w-[480px] bg-black/40 border-r border-white/5 overflow-y-visible lg:overflow-y-auto p-4 lg:p-6 flex flex-col gap-4 lg:gap-5 relative z-10 shrink-0 custom-scrollbar">
+                
+                <div class="glass-card p-4 lg:p-5 rounded-2xl">
+                    <h2 class="text-gradient font-bold text-xs lg:text-sm uppercase tracking-widest mb-4 flex items-center gap-2"><i class="fa-solid fa-award"></i> Condecoração Oficial</h2>
+                    <select id="med-tipo" onchange="updateMedDoc()" class="w-full input-premium rounded-xl px-4 py-3 text-[0.7rem] lg:text-xs appearance-none cursor-pointer border-[#d4af37]/30 focus:border-[#d4af37]">
+                        <option value="Honra ao Mérito">🥇 Honra ao Mérito - Desempenho operacional constante.</option>
+                        <option value="Combatente Tático">⚔️ Combatente Tático - Ativa em confrontos de alto risco.</option>
+                        <option value="Operações Especiais">🚨 Operações Especiais - Grandes operações.</option>
+                        <option value="Águia da ROTA">🦅 Águia da ROTA - Liderança e estratégia exemplar.</option>
+                        <option value="Disciplina e Honra">🛡️ Disciplina e Honra - Respeito à hierarquia.</option>
+                        <option value="QRR de Elite">⚡ QRR de Elite - Agilidade em chamados.</option>
+                        <option value="Precisão Tática">🎯 Precisão Tática - Desempenho e armamento.</option>
+                        <option value="Honra ao Comando">👑 Honra ao Comando - Contribuição para evolução.</option>
+                        <option value="Fidelidade ROTA">🔥 Fidelidade ROTA - Longo período e lealdade.</option>
+                        <option value="Excelência Operacional">🌟 Excelência Operacional - Alto nível operacional.</option>
+                        <option value="Caveira Operacional">💀 Caveira Operacional - Coragem em ocorrências críticas.</option>
+                        <option value="Patrulhamento de Elite">🚔 Patrulhamento de Elite - Frequência alta em rondas.</option>
+                        <option value="Inteligência Policial">🧠 Inteligência Policial - Investigação e estratégia.</option>
+                        <option value="Policial Revelação">🔰 Policial Revelação - Rápida evolução.</option>
+                        <option value="Medalha de Ouro">🏆 Medalha de Ouro - Grandes feitos na ROTA.</option>
+                        <option value="Medalha de Prata">🥈 Medalha de Prata - Ótimo desempenho e participação.</option>
+                        <option value="Medalha de Bronze">🥉 Medalha de Bronze - Comprometimento inicial.</option>
+                        <option value="Guerreiro da ROTA">🪖 Guerreiro da ROTA - Persistência sem abandonar a equipe.</option>
+                        <option value="Mérito Supremo">💎 Mérito Supremo - Apenas aos melhores.</option>
+                        <option value="Ordem da ROTA">⚜️ Ordem da ROTA - Honorária de extrema importância.</option>
+                    </select>
+                </div>
+
+                <div class="glass-card p-4 lg:p-5 rounded-2xl">
+                    <h2 class="text-white font-bold text-xs lg:text-sm uppercase tracking-widest mb-4 flex items-center gap-2"><i class="fa-solid fa-user-check text-slate-400"></i> Oficial Condecorado</h2>
+                    <div class="grid grid-cols-1 gap-4">
+                        <div>
+                            <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Nome do Policial <span class="text-red-500">*</span></label>
+                            <input type="text" id="med-alvo-nome" oninput="updateMedDoc()" class="w-full input-premium rounded-xl px-4 py-3 text-xs lg:text-sm" placeholder="Ex: SD Silva">
+                        </div>
+                        <div>
+                            <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Passaporte <span class="text-red-500">*</span></label>
+                            <input type="text" id="med-alvo-id" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="w-full input-premium rounded-xl px-4 py-3 text-xs lg:text-sm font-mono" placeholder="Apenas N°">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-4 lg:p-5 rounded-2xl border-[#d4af37]/30 bg-[#d4af37]/5">
+                    <h2 class="text-gradient font-bold text-xs lg:text-sm uppercase tracking-widest mb-4 flex items-center gap-2"><i class="fa-solid fa-pen-nib"></i> Autoridade Concedente</h2>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Seu Nome <span class="text-red-500">*</span></label>
+                            <input type="text" id="med-resp-nome" oninput="updateMedDoc()" class="w-full input-premium rounded-xl px-4 py-3 text-xs lg:text-sm" placeholder="Ex: Coronel Alves">
+                        </div>
+                        <div>
+                            <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Cargo <span class="text-red-500">*</span></label>
+                            <input type="text" id="med-resp-cargo" oninput="updateMedDoc()" class="w-full input-premium rounded-xl px-4 py-3 text-xs lg:text-sm" placeholder="Ex: Comandante">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-3 mt-auto pt-4 mb-4 lg:mb-0">
+                    <button onclick="downloadDocument('doc-med-pdf', 'btn-med-jpg', 'CERTIFICADO')" id="btn-med-jpg" class="w-full bg-black/40 hover:bg-white/10 border border-[#d4af37]/30 hover:border-[#d4af37] text-[#d4af37] hover:text-white font-bold py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 text-xs uppercase tracking-wider active:scale-95"><i class="fa-solid fa-print"></i> Emitir Certificado Local (JPG)</button>
+                    <button onclick="enviarDiscordMed()" id="btn-med-discord" class="w-full bg-gradient-to-r from-[#d4af37] to-[#b5952f] text-black font-extrabold py-4 rounded-xl shadow-[0_0_20px_rgba(212,175,55,0.4)] hover:shadow-[0_0_35px_rgba(212,175,55,0.6)] transition-all flex items-center justify-center gap-2 text-[0.8rem] uppercase tracking-wider active:scale-95"><i class="fa-brands fa-discord text-xl"></i> Registrar Condecoração Oficial</button>
+                </div>
+            </aside>
+
+            <main class="w-full lg:flex-1 bg-[#111] relative overflow-auto p-4 lg:p-10 flex justify-center items-center min-h-[600px] custom-scrollbar" id="preview-med">
+                <div id="preview-med-wrapper" class="preview-wrapper w-full items-center">
+                    <div id="doc-med-pdf" class="doc-cert-base">
+                        <div class="cert-black-border">
+                            <div class="cert-gold-border">
+                                <div class="cert-corner cert-tl"></div>
+                                <div class="cert-corner cert-tr"></div>
+                                <div class="cert-corner cert-bl"></div>
+                                <div class="cert-corner cert-br"></div>
+                                
+                                <div class="w-full flex justify-center mb-2">
+                                    <img src="https://i.imgur.com/iYMxsrl.png" crossorigin="anonymous" class="h-20 grayscale drop-shadow-[0_4px_10px_rgba(0,0,0,0.3)] object-contain">
+                                </div>
+
+                                <div class="w-full text-center shrink-0">
+                                    <h3 class="font-bold text-[0.7rem] tracking-[0.4em] uppercase text-gray-800">Polícia Militar do Estado - Batalhão de Choque ROTA</h3>
+                                    <h1 class="cert-title text-[3.5rem] text-[#b5952f] mt-2 mb-1 drop-shadow-sm font-bold leading-none tracking-wide">Certificado de Honra ao Mérito</h1>
+                                    <div class="flex items-center justify-center gap-6 mt-3 mb-4">
+                                        <div class="w-32 h-px bg-[#d4af37]"></div>
+                                        <h2 class="military-font text-xl tracking-[0.2em] text-gray-900 uppercase font-bold" id="doc-med-titulo-medalha">🥇 Honra ao Mérito</h2>
+                                        <div class="w-32 h-px bg-[#d4af37]"></div>
+                                    </div>
+                                </div>
+
+                                <div class="w-full px-16 text-center flex flex-col items-center justify-center flex-1">
+                                    <p class="text-lg leading-relaxed text-gray-800 mb-4 font-serif italic tracking-wide">O Comando Geral das Rondas Ostensivas Tobias de Aguiar (ROTA), no uso de suas atribuições, confere este certificado a</p>
+                                    
+                                    <div class="w-full flex justify-center mb-4">
+                                        <h2 class="cert-title text-5xl font-bold border-b-2 border-[#d4af37] pb-2 px-12 text-black whitespace-nowrap overflow-hidden text-ellipsis max-w-[850px] leading-tight" id="doc-med-alvo-nome">NOME DO POLICIAL</h2>
+                                    </div>
+                                    
+                                    <p class="text-[1rem] leading-relaxed text-gray-800 italic px-12 tracking-wide font-serif" id="doc-med-motivo">Em reconhecimento ao seu excelente desempenho operacional e destaque constante em serviço, honrando o juramento e a farda da corporação.</p>
+                                </div>
+
+                                <div class="w-full flex justify-between items-end mt-auto pt-2 px-12 relative shrink-0">
+                                    <div class="text-center w-1/3 flex flex-col items-center pb-2">
+                                        <span class="block text-base font-mono text-gray-800 mb-2 border-b-2 border-gray-400 pb-1 w-48 font-semibold" id="doc-med-data">01 de Janeiro de 2026</span>
+                                        <span class="block text-[0.65rem] uppercase font-bold text-gray-600 tracking-[0.2em]">Data de Concessão</span>
+                                    </div>
+                                    <div class="text-center w-1/3 flex justify-center absolute left-1/2 -translate-x-1/2 -bottom-2">
+                                        <div class="w-28 h-28 rounded-full border-4 border-double border-[#b5952f] bg-gradient-to-br from-[#f3e5ab] to-[#d4af37] flex items-center justify-center flex-col transform rotate-[15deg] shadow-[0_10px_25px_rgba(0,0,0,0.25)] relative overflow-hidden bg-white">
+                                            <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.4)_0%,transparent_70%)]"></div>
+                                            <i class="fa-solid fa-star text-white text-3xl drop-shadow-md z-10"></i>
+                                            <span class="text-[0.45rem] font-bold text-white uppercase mt-1.5 tracking-[0.2em] drop-shadow-md z-10">Selo Oficial</span>
+                                        </div>
+                                    </div>
+                                    <div class="text-center w-1/3 flex flex-col items-center z-10">
+                                        <div class="h-16 flex items-end justify-center mb-1 w-full">
+                                            <span class="cert-signature text-black text-5xl" id="doc-med-assinatura"></span>
+                                        </div>
+                                        <div class="border-t-2 border-black w-56 pt-2 relative z-10">
+                                            <span class="block font-bold text-[0.75rem] uppercase text-gray-900 tracking-[0.15em]" id="doc-med-resp-nome">NOME DO OFICIAL</span>
+                                            <span class="block text-[0.6rem] uppercase text-gray-600 tracking-[0.2em] mt-0.5 font-semibold" id="doc-med-resp-cargo">CARGO</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <div id="view-prisao" class="hidden flex-col lg:flex-row flex-1 overflow-y-auto lg:overflow-hidden animate-fade-up">
+            
+            <div class="w-full lg:w-1/3 lg:min-w-[380px] lg:max-w-[420px] bg-black/40 border-r border-white/5 flex flex-col shrink-0 lg:h-full z-10">
+                <div class="p-4 lg:p-6 border-b border-white/5 backdrop-blur-md">
+                    <h2 class="text-gradient font-bold text-xs lg:text-sm uppercase tracking-widest mb-4 flex items-center gap-2"><i class="fa-solid fa-book-journal-whills"></i> Código Penal</h2>
+                    <div class="relative group">
+                        <i class="fa-solid fa-search absolute left-4 top-3.5 text-slate-500 group-focus-within:text-[#d4af37] transition-colors"></i>
+                        <input type="text" id="crimeSearchInput" placeholder="Procurar artigo ou infração..." class="w-full input-premium bg-black/50 border-white/10 rounded-xl pl-11 pr-4 py-2.5 lg:py-3 text-xs lg:text-sm focus:border-[#d4af37] shadow-inner">
+                    </div>
+                </div>
+                <div class="flex-1 overflow-y-auto p-3 lg:p-4 custom-scrollbar bg-black/20" id="crimes-container"></div>
+            </div>
+
+            <div class="w-full lg:flex-1 bg-[#050505]/40 overflow-y-visible lg:overflow-y-auto p-4 lg:p-8 flex flex-col gap-5 lg:gap-6 custom-scrollbar relative z-10">
+                <div class="max-w-4xl mx-auto w-full flex flex-col gap-5 lg:gap-6">
+                    
+                    <div id="alerta-0-meses" class="hidden bg-red-500/10 border border-red-500/30 rounded-2xl p-4 lg:p-5 shadow-[0_0_30px_rgba(239,68,68,0.1)] flex items-center gap-4 lg:gap-5 shrink-0 backdrop-blur-xl">
+                        <div class="w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-red-500/20 flex items-center justify-center shrink-0 border border-red-500/30"><i class="fa-solid fa-triangle-exclamation text-red-400 text-lg lg:text-xl animate-pulse"></i></div>
+                        <div>
+                            <h4 class="text-red-400 font-bold text-[0.7rem] lg:text-[0.8rem] uppercase tracking-widest">Ação Restrita</h4>
+                            <p class="text-slate-300 text-xs lg:text-sm mt-1 leading-snug">Lançamentos contendo apenas agravantes (0 meses) são inválidos.</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-card rounded-2xl p-5 lg:p-8 flex flex-col gap-5 lg:gap-6 shrink-0 relative overflow-hidden group hover:border-[#d4af37]/30 transition-colors">
+                        <div class="absolute -top-24 -right-24 w-48 h-48 bg-[#d4af37]/5 rounded-full blur-[50px] pointer-events-none group-hover:bg-[#d4af37]/10 transition-colors"></div>
+
+                        <h3 class="text-gradient font-bold text-xs lg:text-sm uppercase tracking-widest flex items-center gap-2 border-b border-white/5 pb-3"><i class="fa-solid fa-camera"></i> Evidências Fotográficas</h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-[0.6rem] lg:text-[0.65rem] font-bold text-slate-400 mb-2 tracking-widest uppercase">Foto do Indivíduo (Rosto) <span class="text-red-500">*</span></label>
+                                <div id="drop-rosto" class="dropzone w-full h-24 rounded-xl flex flex-col items-center justify-center cursor-pointer relative overflow-hidden group/img">
+                                    <input type="file" id="file-rosto" class="hidden" accept="image/*">
+                                    <div id="place-rosto" class="text-slate-400 flex flex-col items-center group-hover/img:text-white transition-colors">
+                                        <i class="fa-solid fa-user-astronaut text-xl mb-1 group-hover/img:-translate-y-1 transition-transform"></i><span class="text-[0.65rem] font-semibold uppercase tracking-wider">Arraste ou Cole</span>
+                                    </div>
+                                    <img id="prev-rosto" class="hidden absolute inset-0 w-full h-full object-cover opacity-80">
+                                    <button id="rm-rosto" class="hidden absolute top-2 right-2 bg-red-500/80 text-white rounded-full w-7 h-7 flex items-center justify-center text-xs hover:bg-red-500 border border-white/20"><i class="fa-solid fa-times"></i></button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[0.6rem] lg:text-[0.65rem] font-bold text-slate-400 mb-2 tracking-widest uppercase">Comprovante MDT Completo <span class="text-red-500">*</span></label>
+                                <div id="drop-mdt" class="dropzone w-full h-24 rounded-xl flex flex-col items-center justify-center cursor-pointer relative overflow-hidden group/img">
+                                    <input type="file" id="file-mdt" class="hidden" accept="image/*">
+                                    <div id="place-mdt" class="text-slate-400 flex flex-col items-center group-hover/img:text-white transition-colors">
+                                        <i class="fa-solid fa-desktop text-xl mb-1 group-hover/img:-translate-y-1 transition-transform"></i><span class="text-[0.65rem] font-semibold uppercase tracking-wider">Arraste ou Cole</span>
+                                    </div>
+                                    <img id="prev-mdt" class="hidden absolute inset-0 w-full h-full object-cover opacity-80">
+                                    <button id="rm-mdt" class="hidden absolute top-2 right-2 bg-red-500/80 text-white rounded-full w-7 h-7 flex items-center justify-center text-xs hover:bg-red-500 border border-white/20"><i class="fa-solid fa-times"></i></button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h3 class="text-gradient font-bold text-xs lg:text-sm uppercase tracking-widest flex items-center gap-2 border-b border-white/5 pb-3 mt-2"><i class="fa-solid fa-address-card"></i> Qualificação</h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-5">
+                            <div>
+                                <label class="block text-[0.6rem] lg:text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Nome do Acusado <span class="text-red-500">*</span></label>
+                                <input type="text" id="calc-infrator-nome" class="w-full input-premium rounded-xl px-4 py-2.5 lg:py-3 text-xs lg:text-sm" placeholder="Ex: John Doe">
+                            </div>
+                            <div>
+                                <label class="block text-[0.6rem] lg:text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Passaporte (ID) <span class="text-red-500">*</span></label>
+                                <input type="text" id="calc-infrator-passaporte" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="w-full input-premium rounded-xl px-4 py-2.5 lg:py-3 text-xs lg:text-sm font-mono" placeholder="Apenas N°">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-[0.6rem] lg:text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Guarnição (Policiais) <span class="text-red-500">*</span></label>
+                            <div class="flex gap-2 mb-3">
+                                <input type="text" id="calc-policial-nome" class="w-full input-premium rounded-xl px-4 py-2.5 lg:py-3 text-xs lg:text-sm" placeholder="Nome">
+                                <input type="text" id="calc-policial-id" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="w-1/3 input-premium rounded-xl px-4 py-2.5 lg:py-3 text-xs lg:text-sm font-mono" placeholder="ID">
+                                <button onclick="adicionarPolicial()" class="bg-[#d4af37] hover:bg-[#b5952f] text-black px-4 lg:px-5 rounded-xl transition-all font-bold"><i class="fa-solid fa-plus"></i></button>
+                            </div>
+                            <div id="lista-policiais" class="flex flex-wrap gap-2 empty:hidden"></div>
+                        </div>
+
+                        <div>
+                            <label class="block text-[0.6rem] lg:text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Defesa Legal (Advogados Presentes)</label>
+                            <div class="flex gap-2 mb-3">
+                                <input type="text" id="calc-advogado-nome" class="w-full input-premium rounded-xl px-4 py-2.5 lg:py-3 text-xs lg:text-sm" placeholder="Nome do Advogado">
+                                <input type="text" id="calc-advogado-id" class="w-1/3 input-premium rounded-xl px-4 py-2.5 lg:py-3 text-xs lg:text-sm font-mono" placeholder="OAB/ID">
+                                <button onclick="adicionarAdvogado()" class="bg-white/10 hover:bg-white/20 border border-white/10 text-white px-4 lg:px-5 rounded-xl transition-all"><i class="fa-solid fa-plus"></i></button>
+                            </div>
+                            <div id="lista-advogados" class="flex flex-wrap gap-2 empty:hidden"></div>
+                        </div>
+
+                        <div>
+                            <label class="block text-[0.6rem] lg:text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Histórico da Ocorrência <span class="text-red-500">*</span></label>
+                            <textarea id="calc-descricao" rows="3" class="w-full input-premium rounded-xl px-4 py-2.5 lg:py-3 text-xs lg:text-sm resize-none custom-scrollbar" placeholder="Relate a ação policial com clareza..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="glass-card rounded-2xl p-5 lg:p-8 transition-all duration-300 shrink-0 relative overflow-hidden group hover:border-[#d4af37]/30">
+                        <div class="absolute top-0 right-0 w-64 h-64 bg-[#d4af37]/5 blur-[80px] pointer-events-none group-hover:bg-[#d4af37]/10 transition-colors"></div>
+                        
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-5 border-b border-white/5 pb-3 relative z-10">
+                            <h3 class="text-gradient font-bold text-xs lg:text-sm uppercase tracking-widest flex items-center gap-2"><i class="fa-solid fa-scale-balanced"></i> Balanço Penal</h3>
+                            <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+                                <button onclick="limparCalculadora(true)" class="text-slate-500 hover:text-red-400 transition-colors text-[0.6rem] uppercase tracking-widest font-bold flex items-center gap-1.5 px-2 py-1 bg-black/20 rounded-lg"><i class="fa-solid fa-trash-can"></i> Limpar Ficha</button>
+                            </div>
+                        </div>
+
+                        <ul id="selected-crimes-list" class="space-y-3 mb-5 empty:hidden text-xs lg:text-sm relative z-10"></ul>
+                        <div id="empty-crimes" class="text-slate-500 text-[0.75rem] uppercase tracking-widest text-center py-5 bg-black/20 rounded-xl border border-white/5 border-dashed mb-5 relative z-10">
+                            <i class="fa-solid fa-handcuffs text-xl mb-1.5 opacity-50"></i><br>Nenhum crime selecionado
+                        </div>
+
+                        <div class="bg-black/40 rounded-xl border border-white/5 p-4 mb-5 relative z-10">
+                            <label class="block text-[0.6rem] font-bold text-[#d4af37] mb-3 tracking-widest uppercase"><i class="fa-solid fa-tags"></i> Atenuantes Aplicáveis</label>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                                <label class="flex items-center gap-2.5 cursor-pointer group/chk">
+                                    <input type="checkbox" id="red-primario" onchange="updateCalculadoraUI()" class="w-3.5 h-3.5 accent-[#d4af37] rounded bg-white/10 border-white/20">
+                                    <span class="text-xs text-slate-300 group-hover/chk:text-white font-medium">Réu Primário (-20%)</span>
+                                </label>
+                                <label class="flex items-center gap-2.5 cursor-pointer group/chk">
+                                    <input type="checkbox" id="red-confesso" onchange="updateCalculadoraUI()" class="w-3.5 h-3.5 accent-[#d4af37] rounded bg-white/10 border-white/20">
+                                    <span class="text-xs text-slate-300 group-hover/chk:text-white font-medium">Réu Confesso (-20%)</span>
+                                </label>
+                            </div>
+                            <div class="border-t border-white/5 pt-3">
+                                <label class="flex items-center gap-2.5 cursor-pointer group">
+                                    <input type="checkbox" id="red-fianca" onchange="updateCalculadoraUI()" class="w-3.5 h-3.5 accent-[#d4af37] rounded bg-white/10 border-white/20 transition-all">
+                                    <span class="text-xs font-bold text-slate-300 group-hover:text-white uppercase tracking-wider">Fiança Paga (-100%)</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 relative z-10">
+                            <div class="bg-black/50 p-4 rounded-xl border border-white/5 flex flex-col justify-center">
+                                <span class="text-slate-400 text-[0.6rem] font-bold uppercase tracking-widest">Multa</span>
+                                <div class="text-xl font-bold text-red-400/90 mt-1.5 truncate font-mono" id="calc-valor-multa">R$ 0</div>
+                            </div>
+                            <div class="bg-black/50 p-4 rounded-xl border border-white/5 flex flex-col justify-center">
+                                <span class="text-slate-400 text-[0.6rem] font-bold uppercase tracking-widest">Fiança Estimada</span>
+                                <div class="text-xl font-bold text-emerald-400/90 mt-1.5 truncate font-mono" id="calc-valor-fianca">R$ 0</div>
+                            </div>
+                            <div class="bg-gradient-to-br from-[#d4af37]/20 to-[#b5952f]/5 p-4 rounded-xl border border-[#d4af37]/30 flex flex-col justify-center">
+                                <span class="text-[#d4af37] text-[0.6rem] font-bold uppercase tracking-widest flex justify-between">Reclusão <span id="calc-pena-original" class="line-through text-white/40 text-[0.55rem] bg-black/20 px-2 rounded-full font-mono">0m</span></span>
+                                <div class="text-2xl font-extrabold text-white mt-1.5 truncate drop-shadow-md" id="calc-valor-pena">0 Meses</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col gap-3 shrink-0 mb-6">
+                        <button onclick="copiarResumoCalc()" class="w-full bg-black/40 hover:bg-white/10 border border-white/10 hover:border-white/30 text-slate-300 hover:text-white font-bold py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 text-xs uppercase tracking-widest"><i class="fa-regular fa-copy"></i> Copiar Extrato Local (Área de Transferência)</button>
+                        <button onclick="enviarDiscordPrisao()" id="btn-discord-calc" class="w-full bg-gradient-to-r from-[#5865F2] to-[#4752c4] text-white font-extrabold py-4 rounded-xl shadow-[0_0_20px_rgba(88,101,242,0.3)] hover:shadow-[0_0_35px_rgba(88,101,242,0.5)] transition-all flex items-center justify-center gap-2 text-sm uppercase tracking-widest"><i class="fa-brands fa-discord text-xl"></i> Enviar Prisão (Discord Base ROTA)</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="tour-overlay"></div>
+    <div id="tour-modal">
+        <div class="flex justify-between items-center px-6 py-4 border-b border-white/10 shrink-0 bg-black/50">
+            <h2 class="text-[#d4af37] font-bold text-lg uppercase tracking-widest flex items-center gap-3"><i class="fa-solid fa-graduation-cap text-2xl"></i> Academia ROTA</h2>
+            <button onclick="fecharAcademia()" class="text-slate-400 hover:text-red-400 transition-colors bg-white/5 w-8 h-8 rounded-full flex items-center justify-center"><i class="fa-solid fa-xmark text-lg"></i></button>
+        </div>
+        
+        <div class="flex flex-col md:flex-row flex-1 overflow-hidden">
+            <div class="w-full md:w-64 bg-black/60 border-r border-white/10 flex flex-col shrink-0">
+                <button onclick="switchAcaTab('sistema')" id="btn-aca-sistema" class="p-4 text-left border-b border-white/5 text-sm font-bold uppercase tracking-widest text-[#d4af37] bg-white/5 border-l-4 border-l-[#d4af37] transition-all hover:bg-white/10"><i class="fa-solid fa-desktop mr-2 w-5 text-center"></i> Operação Sistema</button>
+                <button onclick="switchAcaTab('penal')" id="btn-aca-penal" class="p-4 text-left border-b border-white/5 text-sm font-bold uppercase tracking-widest text-slate-400 border-l-4 border-l-transparent transition-all hover:bg-white/5 hover:text-white"><i class="fa-solid fa-book-journal-whills mr-2 w-5 text-center"></i> Manual Penal</button>
+            </div>
+            
+            <div class="flex-1 bg-[#0a0a0a] p-6 overflow-y-auto custom-scrollbar relative">
+                <div id="aca-sistema" class="space-y-6 animate-fade-up">
+                    <div class="bg-blue-500/10 border border-blue-500/30 p-5 rounded-xl">
+                        <h3 class="text-blue-400 font-bold uppercase tracking-widest mb-2 flex items-center gap-2"><i class="fa-solid fa-info-circle"></i> Bem-vindo ao Sistema</h3>
+                        <p class="text-slate-300 text-sm leading-relaxed">Este terminal foi desenvolvido para centralizar toda a burocracia do Batalhão Tobias de Aguiar. Todas as ações aqui geram logs oficiais. Tenha atenção ao inserir os IDs (Passaportes) corretos para não punir o indivíduo errado.</p>
+                    </div>
+
+                    <div>
+                        <h3 class="text-white font-bold uppercase tracking-widest mb-3 border-b border-white/10 pb-2">1. Calculadora e Prisões (MDT)</h3>
+                        <ul class="list-decimal pl-5 space-y-2 text-sm text-slate-400">
+                            <li><strong class="text-white">Atenuantes:</strong> O Advogado Constituído e as outras reduções não são automáticas. Verifique se o indivíduo tem direito e marque a caixa. Se adicionar advogado, -30% é descontado automaticamente.</li>
+                            <li><strong class="text-[#d4af37]">Fotos Obrigatórias:</strong> O sistema exige 2 fotos. A foto do <strong class="text-white">ROSTO</strong> do preso e o print do <strong class="text-white">MDT</strong> marcando os crimes.</li>
+                            <li><strong class="text-red-400">Crimes 0 Meses:</strong> Artigos que não dão cadeia (Apenas Agravantes) não podem ser processados sozinhos. O sistema bloqueará o envio. Combine-os com um crime base.</li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h3 class="text-white font-bold uppercase tracking-widest mb-3 border-b border-white/10 pb-2">2. Memorandos e Punições</h3>
+                        <ul class="list-disc pl-5 space-y-2 text-sm text-slate-400">
+                            <li>Use a aba <strong class="text-white">Requisições</strong> para aplicar Advertências, Rebaixamentos ou Blacklist.</li>
+                            <li>Preencha a fundamentação com clareza. Ao clicar em "Transmitir", o sistema enviará o Memorando para o canal correspondente no Discord e salvará uma cópia no seu PC.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div id="aca-penal" class="hidden flex-col gap-4 animate-fade-up">
+                    <div class="mb-2">
+                        <h3 class="text-[#d4af37] font-bold text-xl uppercase tracking-widest mb-2">Estudo de Casos RP</h3>
+                        <p class="text-slate-400 text-sm">Clique em um crime para expandir e ler as diretrizes práticas de aplicação. <strong class="text-white">Evite advertências da Corregedoria estudando as regras de abordagem.</strong></p>
+                    </div>
+                    
+                    <div class="relative group mb-4">
+                        <i class="fa-solid fa-search absolute left-4 top-3 text-slate-500"></i>
+                        <input type="text" id="acaSearch" oninput="filterAcaCrimes()" placeholder="Buscar artigo..." class="w-full bg-white/5 border border-white/10 rounded-xl pl-11 pr-4 py-2.5 text-sm text-white focus:border-[#d4af37] outline-none transition-colors">
+                    </div>
+
+                    <div id="aca-crimes-list" class="flex flex-col gap-3 pb-8"></div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const CONFIG = {
+            WEBHOOKS: {
+                ADV_123: "https://discord.com/api/webhooks/1502313152518553680/GRmGtjInVnW3IBEa_RQd4-zOaX0ZtcNfMt7UyWjTYOYJ0uqvhbX02Yqoie68xqmpN6xt",
+                REBAIXAMENTO: "https://discord.com/api/webhooks/1502313277856813227/oDO46uKT57RO5c2ifO0tbS0d_tfsMgKnIzy2XyS-GvngBj5zosRXlBEwTIpBtGc2MS9J",
+                EXONERACAO: "https://discord.com/api/webhooks/1502313380629844019/fmpfgVC2856mqmGzr2Q5V65Lo9Zdkyx5wDfqzo859NryyQWDfYqKofqz5A0F023r3kfQ",
+                BLACKLIST: "https://discord.com/api/webhooks/1502327231039406211/qdBhL2XaarWzIS_kgy2zbSyTCDfWO3qlcOFPYbnW4l4UsQtJTM_5SBBZIKKTUhlPR8-r",
+                ADV_SUB: "https://discord.com/api/webhooks/1502327472128004186/j8U1bjkPoG1UPhJMUQhTC_udrxWV3k41YFzfgIKDB8StRrOCp4PDQrv4Nc8XTYJmgpfL",
+                MEDALHAS: "https://discord.com/api/webhooks/1502313585941025099/dkoxDeFCwYZfqODn8u8k5ItKX0DEsUQhgS776M4JFvimV21qO_Wk6nXedCGFaYapkA3x",
+                PRISOES: "https://discord.com/api/webhooks/1502313005680038058/cztqiocL4WKk_Ez4lc2DnYA8HFZZGA4Fd1aAJccVzLnjD8YO7s6ZNoq4mp7SAYipb9nR"
+            },
+            BOT_AVATAR: "https://i.imgur.com/bQiVZ6X.png",
+            BOT_NAME: "Rota - System"
+        };
+
+        let isMuted = false;
+
+        const codigoPenal = [
+            { id: 1, crime: "Ameaça", multa: 25000, meses: 20, valor_fianca: 200000, direito_a_fianca: true, description: "Ameaçar causar mal injusto e grave a outrem.", rpEx: "O civil diz claramente: 'Vou te matar quando sair daqui'.", naoAplicar: "O civil diz 'Vou processar vocês' (Ameaça legal não é crime)." },
+            { id: 2, crime: "Apologia ao Crime", multa: 30000, meses: 30, valor_fianca: 200000, direito_a_fianca: true, description: "Fazer apologia a fatos criminosos.", rpEx: "Gritar 'PCC manda', 'CV é o terror'.", naoAplicar: "Citar o nome da facção apenas como resposta a um interrogatório." },
+            { id: 3, crime: "Aviãozinho (6 a 100)", multa: 15000, meses: 20, valor_fianca: 200000, direito_a_fianca: true, description: "Transporte de 6 a 100 unidades de drogas.", rpEx: "Abordado na moto com 50 maconhas.", naoAplicar: "Portar 5 unidades (Configura porte para uso)." },
+            { id: 4, crime: "Calúnia, Injúria, Difamação", multa: 10000, meses: 10, valor_fianca: 200000, direito_a_fianca: true, description: "Atribuir falsamente crime ou ofender a honra.", rpEx: "Civil acusa o policial falsamente: 'Ele roubou meu dinheiro!'.", naoAplicar: "Quando o civil apenas relatar que acha a prisão injusta." },
+            { id: 5, crime: "Corrida Ilegal", multa: 50000, meses: 10, valor_fianca: 200000, direito_a_fianca: true, description: "Rachas e competições não autorizadas.", rpEx: "Dois ou mais carros emparelhados largando juntos.", naoAplicar: "Fugir da polícia (Tentativa de fuga)." },
+            { id: 6, crime: "Cúmplice", multa: 15000, meses: 0, valor_fianca: 100000, direito_a_fianca: true, description: "Ajudar ou facilitar a prática de crime (Agravante).", rpEx: "Motorista de fuga num assalto, ou olheiro.", naoAplicar: "Passageiro de Uber que não tinha conhecimento." },
+            { id: 7, crime: "Dano ao Patrimônio Público", multa: 20000, meses: 15, valor_fianca: 200000, direito_a_fianca: true, description: "Destruir ou danificar bens do Estado.", rpEx: "Chutar a viatura, pichar delegacia.", naoAplicar: "Bater na viatura sem querer devido ao desync." },
+            { id: 8, crime: "Desacato", multa: 50000, meses: 20, valor_fianca: 0, direito_a_fianca: false, description: "Ofender ou humilhar funcionário público.", rpEx: "Chamar o policial de 'Porco', 'Verme' ou cuspir.", naoAplicar: "Reclamação ríspida: 'Sua farda não te faz melhor'." },
+            { id: 11, crime: "Desobediência", multa: 15000, meses: 10, valor_fianca: 200000, direito_a_fianca: true, description: "Desobedecer a ordem legal de funcionário.", rpEx: "Policial dá ordem clara e civil continua correndo.", naoAplicar: "Demorar 3s para responder porque estava digitando (OOC)." },
+            { id: 14, crime: "Dinheiro Sujo", multa: 100000, meses: 20, valor_fianca: 300000, direito_a_fianca: true, description: "Porte de cédulas marcadas/não declaradas.", rpEx: "Pego durante abordagem carregando maços de dinheiro sujo.", naoAplicar: "Dinheiro limpo (legal)." },
+            { id: 15, crime: "Falsa Comunicação", multa: 15000, meses: 10, valor_fianca: 100000, direito_a_fianca: true, description: "Passar trote ou mentir em depoimento.", rpEx: "Ligar no 190 dizendo que há um tiroteio para despistar.", naoAplicar: "Erro honesto na identificação de um suspeito." },
+            { id: 16, crime: "Falsidade Ideológica", multa: 40000, meses: 30, valor_fianca: 400000, direito_a_fianca: true, description: "Mentir identidade.", rpEx: "Fornecer RG falso na delegacia sabendo que é procurado.", naoAplicar: "Não querer falar o nome antes da chegada do advogado." },
+            { id: 17, crime: "Formação de Quadrilha", multa: 50000, meses: 20, valor_fianca: 400000, direito_a_fianca: true, description: "Associação de 3 ou mais pessoas para crime.", rpEx: "Grupo de 3+ vestidos com roupas de facção.", naoAplicar: "2 pessoas apenas." },
+            { id: 18, crime: "Furto", multa: 15000, meses: 10, valor_fianca: 200000, direito_a_fianca: true, description: "Subtrair bem sem violência ou ameaça.", rpEx: "Roubar veículo destrancado sem arma.", naoAplicar: "Usar arma de fogo (Muda para ROUBO)." },
+            { id: 19, crime: "Homicídio Culposo", multa: 15000, meses: 20, valor_fianca: 0, direito_a_fianca: false, description: "Matar sem intenção.", rpEx: "Atropelar pedestre acidentalmente durante perseguição.", naoAplicar: "Atirar de propósito (Doloso)." },
+            { id: 20, crime: "Homicídio Doloso", multa: 25000, meses: 40, valor_fianca: 0, direito_a_fianca: false, description: "Matar com intenção.", rpEx: "Efetuar disparos diretos contra a viatura causando morte.", naoAplicar: "Legítima defesa comprovada." },
+            { id: 21, crime: "Lesão Corporal", multa: 15000, meses: 10, valor_fianca: 200000, direito_a_fianca: true, description: "Agressão física sem intenção de matar.", rpEx: "Bater com taco de beisebol em briga de bar.", naoAplicar: "Empurrão acidental." },
+            { id: 22, crime: "Porte Ostensivo", multa: 25000, meses: 10, valor_fianca: 200000, direito_a_fianca: true, description: "Exibir arma em público (Mesmo legalizada).", rpEx: "Andar pela praça com a pistola na mão.", naoAplicar: "Apenas ter a arma no coldre." },
+            { id: 23, crime: "Arma Branca", multa: 50000, meses: 0, valor_fianca: 0, direito_a_fianca: true, description: "Agravante para uso de facas/tacos.", rpEx: "Pego com canivete escondido.", naoAplicar: "Lanterna normal." },
+            { id: 24, crime: "Arma Leve", multa: 20000, meses: 20, valor_fianca: 200000, direito_a_fianca: true, description: "Porte de Pistolas.", rpEx: "Glock, Five-Seven, etc.", naoAplicar: "Porte legalizado do judiciário." },
+            { id: 25, crime: "Arma Pesada", multa: 25000, meses: 25, valor_fianca: 400000, direito_a_fianca: true, description: "Fuzis, SMGs.", rpEx: "AK-47, M4, Uzi.", naoAplicar: "Arma de paintball permitida." },
+            { id: 26, crime: "Cápsulas/Pólvora", multa: 15000, meses: 10, valor_fianca: 0, direito_a_fianca: true, description: "Materiais para fabricar bala.", rpEx: "Pego com 50 cápsulas vazias.", naoAplicar: "Munição pronta." },
+            { id: 27, crime: "Colete Balístico", multa: 10000, meses: 20, valor_fianca: 200000, direito_a_fianca: true, description: "Uso de colete sem autorização.", rpEx: "Facção usando Kevlar.", naoAplicar: "Policial fora de serviço (se regra permitir)." },
+            { id: 29, crime: "Drogas (1 a 5)", multa: 15000, meses: 0, valor_fianca: 100000, direito_a_fianca: true, description: "Usuário.", rpEx: "Pego com 3 baseados.", naoAplicar: "Pego com 10 (Aviãozinho)." },
+            { id: 30, crime: "Munições (-100)", multa: 15000, meses: 20, valor_fianca: 200000, direito_a_fianca: true, description: "Munições até 100 unid.", rpEx: "90 balas de 9mm.", naoAplicar: "150 balas (Tráfico)." },
+            { id: 31, crime: "Receptação", multa: 20000, meses: 10, valor_fianca: 200000, direito_a_fianca: true, description: "Estar com bem roubado.", rpEx: "Dirigindo carro desmanchado.", naoAplicar: "Carro do próprio amigo alugado." },
+            { id: 32, crime: "Resistência à Prisão", multa: 15000, meses: 10, valor_fianca: 200000, direito_a_fianca: true, description: "Resistência FÍSICA.", rpEx: "Socar o policial ao ser algemado.", naoAplicar: "Apenas xingar (isso é desacato)." },
+            { id: 33, crime: "Roubo", multa: 25000, meses: 10, valor_fianca: 300000, direito_a_fianca: true, description: "Subtrair com arma/ameaça.", rpEx: "Apontar arma e roubar celular.", naoAplicar: "Pegar sem ninguem ver (Furto)." },
+            { id: 34, crime: "Caixa Eletrônico", multa: 30000, meses: 15, valor_fianca: 300000, direito_a_fianca: true, description: "Roubar ATM.", rpEx: "Maçarico no caixa eletrônico.", naoAplicar: "Estava só sacando dinheiro." },
+            { id: 35, crime: "Roubo de Veículo", multa: 20000, meses: 15, valor_fianca: 300000, direito_a_fianca: true, description: "Render para levar carro.", rpEx: "Aponta arma no semáforo.", naoAplicar: "Bater e fugir." },
+            { id: 36, crime: "Sequestro", multa: 100000, meses: 30, valor_fianca: 0, direito_a_fianca: false, description: "Fazer Refém.", rpEx: "Colocar civil no porta-malas.", naoAplicar: "Carona pra amigo amarrado de brincadeira." },
+            { id: 37, crime: "Tráfico Armas (+3)", multa: 200000, meses: 30, valor_fianca: 0, direito_a_fianca: false, description: "3 ou mais armas.", rpEx: "Carregar 4 pistolas para venda.", naoAplicar: "2 armas apenas." },
+            { id: 38, crime: "Tráfico Drogas (+100)", multa: 50000, meses: 25, valor_fianca: 300000, direito_a_fianca: true, description: "101+ Drogas.", rpEx: "Pego na favela com 200 cocaínas.", naoAplicar: "90 cocaínas (Aviãozinho)." },
+            { id: 39, crime: "Tráfico Munições (+100)", multa: 25000, meses: 25, valor_fianca: 400000, direito_a_fianca: true, description: "101+ Munições.", rpEx: "250 balas de fuzil.", naoAplicar: "99 balas." },
+            { id: 40, crime: "Tráfico de Itens Ilegais", multa: 30000, meses: 20, valor_fianca: 200000, direito_a_fianca: true, description: "6+ Lockpicks, Capuz, etc.", rpEx: "Porta malas com 10 lockpicks master.", naoAplicar: "5 lockpicks." },
+            { id: 41, crime: "Porte Itens Ilegais", multa: 15000, meses: 10, valor_fianca: 100000, direito_a_fianca: true, description: "1 a 5 Lockpicks/Algemas.", rpEx: "Revista encontra 2 lockpicks.", naoAplicar: "Itens de loja normal." },
+            { id: 42, crime: "Tentativa de Fuga", multa: 50000, meses: 15, valor_fianca: 200000, direito_a_fianca: true, description: "Fugir de abordagem.", rpEx: "Giroflex ligado e o carro acelera.", naoAplicar: "Parou 1 quarteirão depois por não ver o giro." },
+            { id: 43, crime: "Tentativa de Roubo/Furto", multa: 25000, meses: 10, valor_fianca: 200000, direito_a_fianca: true, description: "Crime não concluído.", rpEx: "Pego tentando estourar fechadura.", naoAplicar: "Já levou o carro." },
+            { id: 44, crime: "Tentativa de Homicídio", multa: 10000, meses: 25, valor_fianca: 0, direito_a_fianca: false, description: "Atirar sem matar.", rpEx: "Disparou no policial e ele sobreviveu.", naoAplicar: "Policial morreu (Homicídio Doloso)." },
+            { id: 45, crime: "Suborno", multa: 40000, meses: 25, valor_fianca: 400000, direito_a_fianca: true, description: "Oferecer vantagem indevida.", rpEx: "Preso diz: 'Te dou 50k pra me soltar'.", naoAplicar: "Sugerir acordo com o advogado legal." },
+            { id: 46, crime: "Randola Recrutamento", multa: 0, meses: 100, valor_fianca: 0, direito_a_fianca: false, description: "Antirp de recrutar na praça.", rpEx: "Membro de facção no hospital chamando novatos.", naoAplicar: "Recrutamento discreto em boate." },
+            { id: 47, crime: "Condução Imprudente", multa: 10000, meses: 10, valor_fianca: 100000, direito_a_fianca: true, description: "Direção perigosa.", rpEx: "Andar na contramão cortando a praça.", naoAplicar: "Bater no poste por desync." }
+        ];
+
+        const audioError = new Audio('https://cdn.uppbeat.io/audio-files/d927511931994ce45cf5b95b34e23536/7c858b78fee58506ad81e937979386ff/f8e7d14e5e9d2866ac93287bc9b9fd12/STREAMING-ui-error-negative-mallets-om-fx-1-00-01.mp3');
+        const audioSuccess = new Audio('https://cdn.uppbeat.io/audio-files/06ae18f31ba6d2a5dd6b6f941ae28d0a/aee3c0f7fecb0f199e67cd561f596edf/150e1666acd575b27ce8cdd9c538923d/STREAMING-notification-bells-sms-received-jam-fx-medium-1-00-01.mp3');
+
+        window.onload = function() {
+            const introEl = document.getElementById('cinematic-intro');
+            if (introEl) {
+                introEl.addEventListener('mousemove', (e) => {
+                    const mask = document.getElementById('spotlight-mask');
+                    mask.style.setProperty('--x', `${e.clientX}px`);
+                    mask.style.setProperty('--y', `${e.clientY}px`);
+                });
+                introEl.addEventListener('click', () => {
+                    if(!isMuted) audioSuccess.play().catch(()=>{});
+                    const flash = document.getElementById('flashbang');
+                    const app = document.getElementById('main-app');
+                    flash.style.opacity = '1';
+                    introEl.style.pointerEvents = 'none';
+                    setTimeout(() => {
+                        introEl.style.display = 'none';
+                        app.style.display = 'flex';
+                        setTimeout(() => app.style.opacity = '1', 50);
+                        setTimeout(() => flash.style.opacity = '0', 300);
+                        setTimeout(() => flash.remove(), 2500);
+                        adjustScales();
+                    }, 800);
+                });
+            }
+            renderCrimesCalc();
+            renderAcaCrimes();
+        };
+
+        function triggerNotification(message, type = 'error') {
+            const container = document.getElementById('pd-global-container');
+            const banner = document.getElementById('pd-banner');
+            const marquee = document.getElementById('pd-marquee');
+            const box = document.getElementById('pd-box');
+            const icon = document.getElementById('pd-icon');
+
+            let color = type === 'error' ? 'var(--pd-red)' : 'var(--pd-green)';
+            let iconClass = type === 'error' ? 'fa-skull' : 'fa-check';
+            let bgFlicker = type === 'error' ? 'rgba(255, 51, 51, 0.3)' : 'rgba(51, 255, 102, 0.3)';
+
+            document.documentElement.style.setProperty('--pd-color', color);
+            document.documentElement.style.setProperty('--pd-bg-flicker', bgFlicker);
+
+            marquee.innerText = `/// ${message} ㅤㅤㅤ///ㅤㅤㅤ /// ${message} ㅤㅤㅤ///`;
+            icon.className = `fa-solid ${iconClass} text-4xl text-black pd-flicker`;
+            box.className = `pd-box pd-flicker-bg`;
+
+            if(!isMuted) {
+                let aud = type === 'error' ? audioError : audioSuccess;
+                aud.currentTime = 0; aud.play().catch(()=>{});
+            }
+
+            container.classList.add('active');
+            setTimeout(() => banner.classList.add('max'), 300);
+
+            setTimeout(() => {
+                banner.classList.remove('max');
+                setTimeout(() => { container.classList.remove('active'); icon.classList.remove('pd-flicker'); }, 400);
+            }, 4000);
+        }
+
+        function toggleMute() {
+            isMuted = !isMuted;
+            document.querySelectorAll('[id^=btn-mute] i').forEach(icon => {
+                icon.className = isMuted ? 'fa-solid fa-volume-xmark text-slate-500' : 'fa-solid fa-volume-high text-[#d4af37]';
+            });
+        }
+
+        let mobileMenuOpen = false;
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const icon = document.querySelector('#btn-mobile-menu i');
+            mobileMenuOpen = !mobileMenuOpen;
+            if(mobileMenuOpen) {
+                menu.classList.replace('scale-y-0', 'scale-y-100');
+                menu.classList.replace('opacity-100', 'opacity-100');
+                menu.classList.remove('pointer-events-none');
+                icon.className = 'fa-solid fa-xmark text-base';
+            } else {
+                menu.classList.replace('scale-y-100', 'scale-y-0');
+                menu.classList.replace('opacity-100', 'opacity-0');
+                menu.classList.add('pointer-events-none');
+                icon.className = 'fa-solid fa-bars text-base';
+            }
+        }
+
+        function switchTab(tab) {
+            ['req', 'med', 'prisao'].forEach(t => {
+                const view = document.getElementById(`view-${t}`);
+                if (view) { view.classList.add('hidden'); view.classList.remove('flex', 'animate-fade-up'); }
+                document.querySelectorAll(`.btn-nav-${t}`).forEach(btn => btn.classList.remove('active'));
+            });
+            const targetView = document.getElementById(`view-${tab}`);
+            if (targetView) {
+                targetView.classList.remove('hidden');
+                setTimeout(() => targetView.classList.add('flex', 'animate-fade-up'), 10);
+            }
+            document.querySelectorAll(`.btn-nav-${tab}`).forEach(btn => btn.classList.add('active'));
+            if(mobileMenuOpen) toggleMobileMenu();
+            setTimeout(adjustScales, 150);
+        }
+
+        function highlightError(elementId) {
+            const el = document.getElementById(elementId);
+            if(el) { el.classList.add('input-error'); el.focus(); setTimeout(() => el.classList.remove('input-error'), 500); }
+        }
+        function formatBRL(value) { return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0 }); }
+        
+        setInterval(() => {
+            const clock = document.getElementById('system-clock-desktop');
+            if(clock) clock.innerText = new Date().toLocaleTimeString('pt-BR');
+        }, 1000);
+
+        function scalePreview(wrapperId, docWidth) {
+            const wrapper = document.getElementById(wrapperId);
+            if(!wrapper || wrapper.clientWidth === 0) return;
+            const availableWidth = wrapper.clientWidth - 40; 
+            if(availableWidth < docWidth) {
+                const scale = availableWidth / docWidth;
+                wrapper.firstElementChild.style.transform = `scale(${scale})`;
+                wrapper.firstElementChild.style.marginBottom = `-${(1 - scale) * (wrapperId === 'preview-req-wrapper' ? 1123 : 794)}px`;
+            } else {
+                wrapper.firstElementChild.style.transform = 'scale(1)';
+                wrapper.firstElementChild.style.marginBottom = '0';
+            }
+        }
+
+        function adjustScales() {
+            scalePreview('preview-req-wrapper', 794);
+            scalePreview('preview-med-wrapper', 1123);
+        }
+        window.addEventListener('resize', adjustScales);
+
+        function checkReqSubdivisao() {
+            const tipo = document.getElementById('req-tipo').value;
+            const box = document.getElementById('req-subdivisao-box');
+            if(tipo === 'Advertência de Subdivisão') { box.classList.remove('hidden'); } 
+            else { box.classList.add('hidden'); document.getElementById('req-subdivisao').value = ''; }
+        }
+
+        function updateReqDoc() {
+            let tipo = document.getElementById('req-tipo').value;
+            if(tipo === 'Advertência de Subdivisão' && document.getElementById('req-subdivisao').value) {
+                tipo += ` (${document.getElementById('req-subdivisao').value})`;
+            }
+
+            document.getElementById('doc-req-tipo-sancao').innerText = tipo;
+            document.getElementById('doc-req-alvo-nome').innerText = document.getElementById('req-alvo-nome').value || '-';
+            document.getElementById('doc-req-alvo-id').innerText = document.getElementById('req-alvo-id').value || '-';
+            document.getElementById('doc-req-alvo-patente').innerText = document.getElementById('req-alvo-patente').value || '-';
+            document.getElementById('doc-req-motivo').innerText = document.getElementById('req-motivo').value || 'Nenhum histórico relatado.';
+
+            const respNome = document.getElementById('req-resp-nome').value || 'NOME DO OFICIAL';
+            document.getElementById('doc-req-resp-nome').innerText = respNome;
+            document.getElementById('doc-req-assinatura').innerText = respNome !== 'NOME DO OFICIAL' ? respNome : '';
+            document.getElementById('doc-req-resp-cargo').innerText = document.getElementById('req-resp-cargo').value || 'CARGO DO OFICIAL';
+            
+            if(document.getElementById('doc-req-proto').innerText === "#MD-00000") {
+                document.getElementById('doc-req-proto').innerText = "#MD-" + Math.random().toString(36).substr(2, 6).toUpperCase();
+            }
+            
+            const hoje = new Date();
+            document.getElementById('doc-req-data').innerText = `Brasil, ${hoje.getDate().toString().padStart(2, '0')}/${(hoje.getMonth()+1).toString().padStart(2, '0')}/${hoje.getFullYear()} - ${hoje.toLocaleTimeString('pt-BR')}`;
+        }
+
+        async function downloadDocument(docId, btnId, namePrefix) {
+            const element = document.getElementById(docId);
+            const btn = document.getElementById(btnId);
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Processando...';
+            
+            // Garantir que as fontes carregaram antes do print
+            await document.fonts.ready;
+
+            const oldTransform = element.style.transform;
+            const oldMargin = element.style.marginBottom;
+            element.style.transform = 'scale(1)';
+            element.style.marginBottom = '0';
+            await new Promise(r => setTimeout(r, 200)); 
+
+            try {
+                const canvas = await html2canvas(element, { scale: 2, useCORS: true, logging: false, backgroundColor: '#ffffff', width: docId==='doc-req-pdf'?794:1123, height: docId==='doc-req-pdf'?1123:794 });
+                const link = document.createElement('a');
+                link.download = `${namePrefix}_ROTA.jpg`;
+                link.href = canvas.toDataURL('image/jpeg', 0.98);
+                link.click();
+                triggerNotification(`DOCUMENTO SALVO NO PC`, "success");
+            } catch(e) { triggerNotification("FALHA AO GERAR IMAGEM", "error"); } 
+            finally { 
+                element.style.transform = oldTransform; 
+                element.style.marginBottom = oldMargin;
+                btn.innerHTML = originalText; 
+            }
+        }
+
+        async function enviarDiscordReq() {
+            const tipoReq = document.getElementById('req-tipo').value;
+            const alvoNome = document.getElementById('req-alvo-nome').value;
+            const alvoId = document.getElementById('req-alvo-id').value;
+            const motivo = document.getElementById('req-motivo').value;
+            const respNome = document.getElementById('req-resp-nome').value;
+            const respCargo = document.getElementById('req-resp-cargo').value;
+
+            if(!alvoNome) { highlightError('req-alvo-nome'); return triggerNotification("PREENCHA O NOME DO ALVO", "error"); }
+            if(!alvoId) { highlightError('req-alvo-id'); return triggerNotification("PREENCHA O PASSAPORTE", "error"); }
+            if(!motivo) { highlightError('req-motivo'); return triggerNotification("DESCREVA O MOTIVO", "error"); }
+            if(!respNome) { highlightError('req-resp-nome'); return triggerNotification("PREENCHA SEU NOME", "error"); }
+
+            let url = "";
+            if(tipoReq.includes("Advertência Verbal")) url = CONFIG.WEBHOOKS.ADV_123;
+            else if(tipoReq.includes("Subdivisão")) url = CONFIG.WEBHOOKS.ADV_SUB;
+            else if(tipoReq === "Rebaixamento") url = CONFIG.WEBHOOKS.REBAIXAMENTO;
+            else if(tipoReq === "Exoneração") url = CONFIG.WEBHOOKS.EXONERACAO;
+            else if(tipoReq.includes("Blacklist")) url = CONFIG.WEBHOOKS.BLACKLIST;
+
+            const btn = document.getElementById('btn-req-discord');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> TRANSMITINDO...';
+            btn.disabled = true;
+
+            const element = document.getElementById('doc-req-pdf');
+            await document.fonts.ready;
+            const oldTransform = element.style.transform;
+            element.style.transform = 'scale(1)';
+            await new Promise(r => setTimeout(r, 200));
+
+            try {
+                const canvas = await html2canvas(element, { scale: 2, useCORS: true, width: 794, height: 1123 });
+                const blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg'));
+
+                const embed = {
+                    title: `🚔 Memorando Operacional: ${document.getElementById('doc-req-tipo-sancao').innerText}`,
+                    color: tipoReq.includes("Blacklist") ? 0 : 16711680,
+                    fields: [
+                        { name: "Alvo", value: `\`${alvoNome} (ID: ${alvoId})\``, inline: true },
+                        { name: "Oficial Responsável", value: `\`${respNome} | ${respCargo}\``, inline: true },
+                        { name: "Motivação / Base Legal", value: `> ${motivo}` }
+                    ],
+                    image: { url: "attachment://memorando.jpg" },
+                    footer: { text: "Sistema Corregedoria ROTA" }
+                };
+
+                const formData = new FormData();
+                formData.append('payload_json', JSON.stringify({ username: CONFIG.BOT_NAME, avatar_url: CONFIG.BOT_AVATAR, embeds: [embed] }));
+                formData.append('file', blob, 'memorando.jpg');
+
+                const res = await fetch(url, { method: 'POST', body: formData });
+                if(res.ok) {
+                    triggerNotification("MEMORANDO TRANSMITIDO", "success");
+                    document.getElementById('req-alvo-nome').value = ''; document.getElementById('req-alvo-id').value = ''; document.getElementById('req-motivo').value = ''; updateReqDoc();
+                } else throw new Error();
+            } catch(e) { triggerNotification("FALHA DE CONEXÃO (DISCORD)", "error"); } 
+            finally { btn.innerHTML = originalText; btn.disabled = false; element.style.transform = oldTransform; }
+        }
+
+        function updateMedDoc() {
+            const combo = document.getElementById('med-tipo');
+            const selectedText = combo.options[combo.selectedIndex].text;
+            const [titulo, motivo] = selectedText.split(" - ");
+
+            document.getElementById('doc-med-titulo-medalha').innerText = titulo;
+            document.getElementById('doc-med-motivo').innerText = `Em reconhecimento ao(a) ${motivo.toLowerCase()} honrando o juramento e a farda do Batalhão Tobias de Aguiar.`;
+            document.getElementById('doc-med-alvo-nome').innerText = document.getElementById('med-alvo-nome').value || 'NOME DO POLICIAL';
+            
+            const respNome = document.getElementById('med-resp-nome').value || 'NOME DA AUTORIDADE';
+            document.getElementById('doc-med-resp-nome').innerText = respNome;
+            document.getElementById('doc-med-assinatura').innerText = respNome !== 'NOME DA AUTORIDADE' ? respNome : '';
+            document.getElementById('doc-med-resp-cargo').innerText = document.getElementById('med-resp-cargo').value || 'COMANDANTE';
+
+            const meses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+            const h = new Date();
+            document.getElementById('doc-med-data').innerText = `${h.getDate().toString().padStart(2,'0')} de ${meses[h.getMonth()]} de ${h.getFullYear()}`;
+        }
+
+        async function enviarDiscordMed() {
+            const alvoNome = document.getElementById('med-alvo-nome').value;
+            const alvoId = document.getElementById('med-alvo-id').value;
+            const respNome = document.getElementById('med-resp-nome').value;
+            const respCargo = document.getElementById('med-resp-cargo').value;
+
+            if(!alvoNome || !alvoId) return triggerNotification("PREENCHA O OFICIAL CONDECORADO", "error");
+            if(!respNome || !respCargo) return triggerNotification("PREENCHA OS DADOS DA AUTORIDADE", "error");
+
+            const btn = document.getElementById('btn-med-discord');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> REGISTRANDO...';
+            btn.disabled = true;
+
+            const element = document.getElementById('doc-med-pdf');
+            await document.fonts.ready;
+            const oldTransform = element.style.transform;
+            element.style.transform = 'scale(1)';
+            await new Promise(r => setTimeout(r, 200));
+
+            try {
+                const canvas = await html2canvas(element, { scale: 2, useCORS: true, width: 1123, height: 794 });
+                const blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg'));
+
+                const embed = {
+                    title: `🎖️ Registro de Condecoração Oficial`,
+                    color: 13938487,
+                    description: `**Medalha:** ${document.getElementById('doc-med-titulo-medalha').innerText}\n\n**Oficial Condecorado:** \`${alvoNome} (ID: ${alvoId})\`\n**Autoridade:** \`${respNome} (${respCargo})\``,
+                    image: { url: "attachment://certificado.jpg" },
+                    footer: { text: "Comando Geral ROTA" }
+                };
+
+                const formData = new FormData();
+                formData.append('payload_json', JSON.stringify({ username: CONFIG.BOT_NAME, avatar_url: CONFIG.BOT_AVATAR, embeds: [embed] }));
+                formData.append('file', blob, 'certificado.jpg');
+
+                const res = await fetch(CONFIG.WEBHOOKS.MEDALHAS, { method: 'POST', body: formData });
+                if(res.ok) {
+                    triggerNotification("MEDALHA REGISTRADA", "success");
+                    document.getElementById('med-alvo-nome').value = ''; document.getElementById('med-alvo-id').value = ''; updateMedDoc();
+                } else throw new Error();
+            } catch(e) { triggerNotification("FALHA DE CONEXÃO", "error"); } 
+            finally { btn.innerHTML = originalText; btn.disabled = false; element.style.transform = oldTransform; }
+        }
+
+        let selectedCrimesForCalc = [];
+        let oficiaisEnvolvidos = [];
+        let advogadosEnvolvidos = [];
+        let rostoImageFile = null;
+        let mdtImageFile = null;
+
+        function renderCrimesCalc(filter = "") {
+            const container = document.getElementById('crimes-container');
+            container.innerHTML = '';
+            const search = filter.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+            
+            codigoPenal.forEach(crime => {
+                const searchStr = crime.crime.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+                if(searchStr.includes(search)) {
+                    const isSelected = selectedCrimesForCalc.some(c => c.id === crime.id);
+                    const div = document.createElement('div');
+                    div.className = `crime-item p-3 mb-2 rounded-xl border ${isSelected ? 'selected' : 'border-white/5 bg-white/[0.02]'} flex justify-between items-center group relative overflow-hidden`;
+                    
+                    if(isSelected) div.innerHTML = `<div class="absolute inset-0 bg-gradient-to-r from-[#d4af37]/10 to-transparent pointer-events-none"></div>`;
+                    
+                    div.onclick = () => {
+                        const idx = selectedCrimesForCalc.findIndex(c => c.id === crime.id);
+                        if(idx > -1) selectedCrimesForCalc.splice(idx, 1);
+                        else selectedCrimesForCalc.push(crime);
+                        renderCrimesCalc(document.getElementById('crimeSearchInput').value);
+                        updateCalculadoraUI();
+                    };
+
+                    const badge = crime.meses === 0 
+                        ? `<span class="bg-red-500/20 text-red-400 text-[0.6rem] border border-red-500/30 px-1.5 rounded font-bold uppercase tracking-widest">Agravante</span>`
+                        : `<span class="text-slate-400 text-[0.65rem] bg-black/40 border border-white/5 px-2 py-0.5 rounded font-mono"><i class="fa-regular fa-clock text-[#d4af37]"></i> ${crime.meses}m</span>`;
+
+                    div.innerHTML += `
+                        <div class="w-4/5 pr-2 relative z-10 flex flex-col gap-1">
+                            <h4 class="text-slate-200 font-bold text-[0.7rem] group-hover:text-white transition-colors leading-tight">${crime.crime}</h4>
+                            <div class="flex items-center gap-2 mt-0.5">
+                                <span class="text-emerald-400/90 font-mono text-[0.65rem] font-bold">${formatBRL(crime.multa)}</span>
+                                ${badge}
+                            </div>
+                        </div>
+                        <div class="w-1/5 text-right relative z-10">
+                            ${isSelected ? `<i class="fa-solid fa-check text-xl text-[#d4af37]"></i>` : `<i class="fa-regular fa-circle text-xl text-slate-600 group-hover:text-slate-400"></i>`}
+                        </div>`;
+                    container.appendChild(div);
+                }
+            });
+        }
+
+        document.getElementById('crimeSearchInput').addEventListener('input', (e) => renderCrimesCalc(e.target.value));
+
+        function limparCalculadora(showMsg = false) {
+            selectedCrimesForCalc = []; oficiaisEnvolvidos = []; advogadosEnvolvidos = [];
+            ['calc-infrator-nome', 'calc-infrator-passaporte', 'calc-descricao', 'calc-policial-nome', 'calc-policial-id', 'calc-advogado-nome', 'calc-advogado-id'].forEach(id => document.getElementById(id).value = '');
+            ['red-primario', 'red-confesso', 'red-fianca'].forEach(id => document.getElementById(id).checked = false);
+            if(rostoImageFile) document.getElementById('rm-rosto').click();
+            if(mdtImageFile) document.getElementById('rm-mdt').click();
+            
+            renderCrimesCalc(); renderPoliciais(); renderAdvogados(); updateCalculadoraUI();
+            if(showMsg) triggerNotification("FICHA LIMPA E RESETADA", "success");
+        }
+
+        function updateCalculadoraUI() {
+            const listEl = document.getElementById('selected-crimes-list');
+            const emptyEl = document.getElementById('empty-crimes');
+            const alerta = document.getElementById('alerta-0-meses');
+            
+            listEl.innerHTML = '';
+            if (selectedCrimesForCalc.length === 0) {
+                emptyEl.classList.remove('hidden'); alerta.classList.add('hidden');
+                document.getElementById('calc-valor-multa').innerText = "R$ 0"; document.getElementById('calc-valor-fianca').innerText = "R$ 0";
+                document.getElementById('calc-valor-pena').innerText = "0 Meses"; document.getElementById('calc-pena-original').innerText = "0m";
+                return;
+            }
+            emptyEl.classList.add('hidden');
+
+            let totMulta = 0, totMeses = 0, totFianca = 0, inafiancavel = false;
+            selectedCrimesForCalc.forEach(c => {
+                const li = document.createElement('li');
+                li.className = "flex justify-between items-center text-slate-300 border-b border-white/5 pb-2 pt-1";
+                li.innerHTML = `<span class="w-3/5 truncate text-[0.75rem]"><i class="fa-solid fa-gavel text-[#d4af37]/60 mr-2"></i> ${c.crime}</span><span class="w-2/5 text-right font-mono text-[0.65rem] text-slate-400">${formatBRL(c.multa)} | ${c.meses}m</span>`;
+                listEl.appendChild(li);
+                totMulta += c.multa; totMeses += c.meses; totFianca += c.valor_fianca;
+                if(!c.direito_a_fianca) inafiancavel = true;
+            });
+
+            document.getElementById('calc-valor-multa').innerText = formatBRL(totMulta);
+            document.getElementById('calc-pena-original').innerText = `${totMeses}m`;
+
+            if(inafiancavel) {
+                document.getElementById('red-fianca').disabled = true; document.getElementById('red-fianca').checked = false;
+                document.getElementById('calc-valor-fianca').innerText = "INAFIANÇÁVEL";
+                document.getElementById('calc-valor-fianca').className = "text-xl font-bold text-red-500/90 mt-1.5 truncate font-mono";
+            } else {
+                document.getElementById('red-fianca').disabled = false;
+                document.getElementById('calc-valor-fianca').innerText = formatBRL(totFianca);
+                document.getElementById('calc-valor-fianca').className = "text-xl font-bold text-emerald-400/90 mt-1.5 truncate font-mono";
+            }
+
+            if(totMeses === 0) {
+                document.getElementById('calc-valor-pena').innerText = "BLOQUEADO";
+                alerta.classList.remove('hidden'); return;
+            }
+            alerta.classList.add('hidden');
+
+            let red = 0;
+            if(advogadosEnvolvidos.length > 0) red += 0.30;
+            if(document.getElementById('red-primario').checked) red += 0.20;
+            if(document.getElementById('red-confesso').checked) red += 0.20;
+            
+            let finalM = Math.ceil(totMeses * (1 - red));
+            if(document.getElementById('red-fianca').checked && !inafiancavel) finalM = 0;
+
+            document.getElementById('calc-valor-pena').innerText = `${finalM} Meses`;
+        }
+
+        function adicionarPolicial() {
+            let nome = document.getElementById('calc-policial-nome').value.trim().toUpperCase();
+            let id = document.getElementById('calc-policial-id').value.trim();
+            if(!nome || !id) return;
+            oficiaisEnvolvidos.push({nome, id});
+            document.getElementById('calc-policial-nome').value = ''; document.getElementById('calc-policial-id').value = '';
+            renderPoliciais();
+        }
+        function renderPoliciais() {
+            let c = document.getElementById('lista-policiais'); c.innerHTML = '';
+            oficiaisEnvolvidos.forEach((o,i) => {
+                c.innerHTML += `<div class="flex items-center gap-1.5 bg-[#d4af37]/10 border border-[#d4af37]/30 text-[#d4af37] px-2 py-1 rounded-full text-[0.65rem] font-bold tracking-widest"><i class="fa-solid fa-shield"></i> ${o.nome} (${o.id}) <button onclick="oficiaisEnvolvidos.splice(${i},1);renderPoliciais()" class="ml-1 text-red-400"><i class="fa-solid fa-times"></i></button></div>`;
+            });
+        }
+        function adicionarAdvogado() {
+            let nome = document.getElementById('calc-advogado-nome').value.trim().toUpperCase();
+            let id = document.getElementById('calc-advogado-id').value.trim();
+            if(!nome || !id) return;
+            advogadosEnvolvidos.push({nome, id});
+            document.getElementById('calc-advogado-nome').value = ''; document.getElementById('calc-advogado-id').value = '';
+            renderAdvogados(); updateCalculadoraUI();
+        }
+        function renderAdvogados() {
+            let c = document.getElementById('lista-advogados'); c.innerHTML = '';
+            advogadosEnvolvidos.forEach((a,i) => {
+                c.innerHTML += `<div class="flex items-center gap-1.5 bg-white/10 border border-white/20 text-white px-2 py-1 rounded-full text-[0.65rem] font-bold tracking-widest"><i class="fa-solid fa-user-tie"></i> ${a.nome} (${a.id}) <button onclick="advogadosEnvolvidos.splice(${i},1);renderAdvogados();updateCalculadoraUI()" class="ml-1 text-red-400"><i class="fa-solid fa-times"></i></button></div>`;
+            });
+        }
+
+        // Upload Slots Duplos (Rosto + MDT)
+        function setupDropzone(idDrop, idInput, idPrev, idPlace, idRm, isRosto) {
+            const drop = document.getElementById(idDrop), inp = document.getElementById(idInput), prev = document.getElementById(idPrev), place = document.getElementById(idPlace), rm = document.getElementById(idRm);
+            function process(file) {
+                if(!file || !file.type.startsWith('image/')) return;
+                if(isRosto) rostoImageFile = file; else mdtImageFile = file;
+                const r = new FileReader();
+                r.onload = e => { prev.src = e.target.result; prev.classList.remove('hidden'); place.classList.add('hidden'); rm.classList.remove('hidden'); };
+                r.readAsDataURL(file);
+            }
+            drop.onclick = () => inp.click();
+            inp.onchange = e => process(e.target.files[0]);
+            drop.ondragover = e => { e.preventDefault(); drop.classList.add('dragover'); };
+            drop.ondragleave = () => drop.classList.remove('dragover');
+            drop.ondrop = e => { e.preventDefault(); drop.classList.remove('dragover'); if(e.dataTransfer.files.length) process(e.dataTransfer.files[0]); };
+            rm.onclick = e => {
+                e.stopPropagation();
+                if(isRosto) rostoImageFile = null; else mdtImageFile = null;
+                prev.src = ''; prev.classList.add('hidden'); place.classList.remove('hidden'); rm.classList.add('hidden'); inp.value = '';
+            };
+        }
+        setupDropzone('drop-rosto', 'file-rosto', 'prev-rosto', 'place-rosto', 'rm-rosto', true);
+        setupDropzone('drop-mdt', 'file-mdt', 'prev-mdt', 'place-mdt', 'rm-mdt', false);
+
+        document.addEventListener('paste', e => {
+            if(!document.getElementById('view-prisao').classList.contains('hidden')) {
+                let items = (e.clipboardData || e.originalEvent.clipboardData).items;
+                for(let item of items) {
+                    if(item.type.indexOf('image') === 0) {
+                        if(!rostoImageFile) {
+                            rostoImageFile = item.getAsFile();
+                            const r = new FileReader(); r.onload = ev => { document.getElementById('prev-rosto').src = ev.target.result; document.getElementById('prev-rosto').classList.remove('hidden'); document.getElementById('place-rosto').classList.add('hidden'); document.getElementById('rm-rosto').classList.remove('hidden'); }; r.readAsDataURL(rostoImageFile);
+                        } else if(!mdtImageFile) {
+                            mdtImageFile = item.getAsFile();
+                            const r = new FileReader(); r.onload = ev => { document.getElementById('prev-mdt').src = ev.target.result; document.getElementById('prev-mdt').classList.remove('hidden'); document.getElementById('place-mdt').classList.add('hidden'); document.getElementById('rm-mdt').classList.remove('hidden'); }; r.readAsDataURL(mdtImageFile);
+                        } else triggerNotification("AMBOS SLOTS DE IMAGEM ESTÃO CHEIOS", "error");
+                        break;
+                    }
+                }
+            }
+        });
+
+        function copiarResumoCalc() {
+            if(selectedCrimesForCalc.length === 0) return triggerNotification("NENHUM CRIME SELECIONADO", "error");
+            let crs = selectedCrimesForCalc.map(c=>`- ${c.crime}`).join('\n');
+            let pol = oficiaisEnvolvidos.map(o=>`${o.nome} (${o.id})`).join(', ') || "Nenhum";
+            let txt = `📋 PRISÃO ROTA\nAlvo: ${document.getElementById('calc-infrator-nome').value} (${document.getElementById('calc-infrator-passaporte').value})\nGuarnição: ${pol}\nCrimes:\n${crs}\nPena: ${document.getElementById('calc-valor-pena').innerText}\nMulta: ${document.getElementById('calc-valor-multa').innerText}`;
+            const ta = document.createElement("textarea"); ta.value = txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+            triggerNotification("EXTRATO COPIADO", "success");
+        }
+
+        async function enviarDiscordPrisao() {
+            if(!rostoImageFile) return triggerNotification("FALTA FOTO DO ROSTO", "error");
+            if(!mdtImageFile) return triggerNotification("FALTA FOTO DO MDT", "error");
+            
+            const infrator = document.getElementById('calc-infrator-nome').value.trim();
+            const infId = document.getElementById('calc-infrator-passaporte').value.trim();
+            const desc = document.getElementById('calc-descricao').value.trim();
+
+            if(!infrator || !infId) return triggerNotification("PREENCHA NOME E ID DO PRESO", "error");
+            if(oficiaisEnvolvidos.length === 0) return triggerNotification("ADICIONE A GUARNIÇÃO", "error");
+            if(!desc) return triggerNotification("DESCREVA A OCORRÊNCIA", "error");
+            if(selectedCrimesForCalc.length === 0) return triggerNotification("SELECIONE OS CRIMES", "error");
+            if(document.getElementById('calc-valor-pena').innerText === "BLOQUEADO") return triggerNotification("REMOVA O BLOQUEIO DE PENA", "error");
+
+            const btn = document.getElementById('btn-discord-calc');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> ENVIANDO...';
+            btn.disabled = true;
+
+            const idPrisao = "PR-" + Math.random().toString(36).substr(2, 6).toUpperCase();
+            let advStr = advogadosEnvolvidos.length ? advogadosEnvolvidos.map(a=>`${a.nome} (${a.id})`).join(", ") : "Não Acionada";
+            let polStr = oficiaisEnvolvidos.map(o=>`\`${o.nome} (${o.id})\``).join(", ");
+            let crStr = selectedCrimesForCalc.map(c=>`> ${c.crime}`).join("\n");
+            
+            let redAtivas = [];
+            if(advogadosEnvolvidos.length > 0) redAtivas.push("Adv. Presente (-30%)");
+            if(document.getElementById('red-primario').checked) redAtivas.push("Primário (-20%)");
+            if(document.getElementById('red-confesso').checked) redAtivas.push("Confesso (-20%)");
+            if(document.getElementById('red-fianca').checked && document.getElementById('calc-valor-fianca').innerText !== "INAFIANÇÁVEL") redAtivas.push("Fiança Paga (-100%)");
+
+            const embed = {
+                title: `🚨 REGISTRO DE CUSTÓDIA | #${idPrisao}`,
+                color: 16711680,
+                description: `**Alvo:** \`${infrator.toUpperCase()} (ID: ${infId})\`\n\n**Dinâmica da Ação:**\n\`\`\`text\n${desc}\n\`\`\``,
+                fields: [
+                    { name: "👮 Guarnição ROTA", value: polStr, inline: false },
+                    { name: "⚖️ Defesa Legal", value: advStr, inline: false },
+                    { name: "📋 Enquadramento Penal", value: crStr, inline: false },
+                    { name: "📉 Atenuantes", value: redAtivas.length ? redAtivas.join(" | ") : "Nenhuma", inline: false },
+                    { name: "💰 Valores", value: `Multa: **${document.getElementById('calc-valor-multa').innerText}**\nFiança: **${document.getElementById('calc-valor-fianca').innerText}**`, inline: true },
+                    { name: "⏱️ Reclusão Aplicada", value: `**${document.getElementById('calc-valor-pena').innerText}**`, inline: true }
+                ],
+                thumbnail: { url: "attachment://rosto.jpg" },
+                image: { url: "attachment://mdt.jpg" },
+                footer: { text: "Sistema Integrado Batalhão ROTA" }
+            };
+
+            const formData = new FormData();
+            formData.append('payload_json', JSON.stringify({ username: CONFIG.BOT_NAME, avatar_url: CONFIG.BOT_AVATAR, embeds: [embed] }));
+            formData.append('file1', rostoImageFile, 'rosto.jpg');
+            formData.append('file2', mdtImageFile, 'mdt.jpg');
+
+            try {
+                const res = await fetch(CONFIG.WEBHOOKS.PRISOES, { method: 'POST', body: formData });
+                if(res.ok) {
+                    limparCalculadora(false);
+                    triggerNotification("PRISÃO ENVIADA", "success");
+                } else throw new Error();
+            } catch(e) { triggerNotification("FALHA AO CONECTAR (DISCORD)", "error"); } 
+            finally { btn.innerHTML = originalText; btn.disabled = false; }
+        }
+
+        function abrirAcademia() {
+            document.getElementById('tour-overlay').classList.add('active');
+            document.getElementById('tour-modal').classList.add('active');
+            renderAcaCrimes();
+        }
+        function fecharAcademia() {
+            document.getElementById('tour-overlay').classList.remove('active');
+            document.getElementById('tour-modal').classList.remove('active');
+        }
+        function switchAcaTab(tab) {
+            document.getElementById('aca-sistema').classList.add('hidden');
+            document.getElementById('aca-penal').classList.add('hidden');
+            document.getElementById('btn-aca-sistema').classList.replace('text-[#d4af37]', 'text-slate-400');
+            document.getElementById('btn-aca-sistema').classList.replace('border-l-[#d4af37]', 'border-l-transparent');
+            document.getElementById('btn-aca-penal').classList.replace('text-[#d4af37]', 'text-slate-400');
+            document.getElementById('btn-aca-penal').classList.replace('border-l-[#d4af37]', 'border-l-transparent');
+
+            document.getElementById(`aca-${tab}`).classList.remove('hidden');
+            document.getElementById(`btn-aca-${tab}`).classList.replace('text-slate-400', 'text-[#d4af37]');
+            document.getElementById(`btn-aca-${tab}`).classList.replace('border-l-transparent', 'border-l-[#d4af37]');
+        }
+
+        function renderAcaCrimes(filter = "") {
+            const list = document.getElementById('aca-crimes-list');
+            list.innerHTML = '';
+            const search = filter.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
+            codigoPenal.forEach((c, index) => {
+                const searchStr = c.crime.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+                if(searchStr.includes(search)) {
+                    const isAgravante = c.meses === 0;
+                    
+                    list.innerHTML += `
+                        <div class="bg-[#111] border border-white/10 rounded-xl overflow-hidden transition-all">
+                            <button class="crime-acc-btn w-full p-4 flex justify-between items-center text-left hover:bg-white/5 transition-colors" onclick="toggleAccordion('acc-${index}')" id="btn-acc-${index}">
+                                <div>
+                                    <h3 class="font-bold text-[#d4af37] uppercase tracking-wider text-sm"><i class="fa-solid fa-gavel mr-2"></i> ${c.crime}</h3>
+                                    <p class="text-[0.65rem] text-slate-400 mt-1 line-clamp-1">${c.description}</p>
+                                </div>
+                                <div class="flex items-center gap-4 text-right shrink-0">
+                                    <div>
+                                        <span class="block text-xs font-mono text-emerald-400">${formatBRL(c.multa)}</span>
+                                        ${isAgravante ? '<span class="text-[0.6rem] text-red-400 bg-red-400/10 px-1 rounded uppercase">Apenas Agravante</span>' : `<span class="text-[0.65rem] text-slate-400">${c.meses} Meses</span>`}
+                                    </div>
+                                    <i class="fa-solid fa-chevron-down text-slate-500"></i>
+                                </div>
+                            </button>
+                            
+                            <div id="acc-${index}" class="accordion-content bg-black/50 border-t border-white/5">
+                                <div class="p-5 flex flex-col gap-4">
+                                    <div>
+                                        <h4 class="text-[0.65rem] uppercase font-bold text-slate-500 tracking-widest mb-1">Descrição Oficial</h4>
+                                        <p class="text-sm text-slate-300 leading-relaxed text-justify">${c.description}</p>
+                                    </div>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div class="bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-lg">
+                                            <h4 class="text-emerald-400 font-bold text-xs uppercase mb-1.5 flex items-center gap-1.5"><i class="fa-solid fa-check-circle"></i> Exemplo Prático (RP)</h4>
+                                            <p class="text-xs text-slate-300 leading-snug">${c.rpEx}</p>
+                                        </div>
+                                        <div class="bg-red-500/10 border border-red-500/20 p-3 rounded-lg">
+                                            <h4 class="text-red-400 font-bold text-xs uppercase mb-1.5 flex items-center gap-1.5"><i class="fa-solid fa-ban"></i> Quando NÃO Aplicar</h4>
+                                            <p class="text-xs text-slate-300 leading-snug">${c.naoAplicar}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+        }
+
+        function filterAcaCrimes() { renderAcaCrimes(document.getElementById('acaSearch').value); }
+
+        function toggleAccordion(id) {
+            const content = document.getElementById(id);
+            const btn = document.getElementById(`btn-${id}`);
+            document.querySelectorAll('.accordion-content').forEach(el => {
+                if(el.id !== id) { el.classList.remove('open'); document.getElementById(`btn-${el.id}`).classList.remove('open'); }
+            });
+            content.classList.toggle('open'); btn.classList.toggle('open');
+        }
+    </script>
+</body>
+</html>
