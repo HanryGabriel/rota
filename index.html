@@ -68,7 +68,6 @@
         .cert-signature { font-family: 'Pinyon Script', cursive; line-height: 0.5; }
         .pd-font { font-family: 'Teko', sans-serif; }
 
-        /* Scrollbar Elite */
         ::-webkit-scrollbar { width: 5px; height: 5px; }
         ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
         ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; transition: all 0.3s; }
@@ -152,15 +151,13 @@
         }
         .animate-fade-up { animation: fadeUp 0.5s ease forwards; }
 
-        
-        /* Container que gerencia o zoom na tela sem afetar o tamanho real do documento */
         .preview-wrapper {
             transform-origin: top center;
             transition: transform 0.3s ease-out;
             display: flex; justify-content: center;
         }
 
-        /* Estrutura estrita do Memorando (Retrato) */
+        /* Estrutura do Memorando */
         .doc-req-base {
             width: 794px; height: 1123px; 
             background: #fdfdfc; color: #000;
@@ -168,8 +165,6 @@
             box-sizing: border-box; flex-shrink: 0; position: relative;
             padding: 40px; 
         }
-        
-        /* Sistema de Grid Interno do Memorando */
         .doc-inner-req { border: 2px solid #111; height: 100%; display: flex; flex-direction: column; }
         .doc-section-mil { border: 2px solid #111; margin-bottom: 20px; }
         .doc-row-mil { display: flex; border-bottom: 2px solid #111; }
@@ -179,31 +174,28 @@
         .doc-label-mil { font-size: 0.65rem; font-weight: bold; text-transform: uppercase; color: #555; margin-bottom: 2px; letter-spacing: 0.05em; }
         .doc-value-mil { font-size: 0.95rem; font-weight: 800; color: #000; word-break: break-word; }
 
-        /* Estrutura estrita do Certificado (Paisagem) - Anti-Corte */
+        /* Estrutura do Certificado */
         .doc-cert-base {
             width: 1123px; height: 794px; 
             background: #fbf9f1; color: #000;
             box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8); 
             box-sizing: border-box; flex-shrink: 0; position: relative;
-            padding: 30px; /* Margem externa para a borda preta */
+            padding: 30px; 
             background-image: 
                 linear-gradient(rgba(212, 175, 55, 0.03) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(212, 175, 55, 0.03) 1px, transparent 1px);
             background-size: 20px 20px;
         }
-        
         .cert-black-border {
             border: 15px solid #1a1a1a; width: 100%; height: 100%; 
             padding: 15px; box-sizing: border-box; position: relative;
         }
-
         .cert-gold-border {
             border: 4px double #d4af37; width: 100%; height: 100%; 
             padding: 30px 40px; box-sizing: border-box; position: relative;
             display: flex; flex-direction: column; align-items: center; justify-content: space-between;
             background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, transparent 100%);
         }
-
         .cert-corner { position: absolute; width: 60px; height: 60px; border: 4px solid #d4af37; }
         .cert-tl { top: -12px; left: -12px; border-bottom: none; border-right: none; }
         .cert-tr { top: -12px; right: -12px; border-bottom: none; border-left: none; }
@@ -216,7 +208,6 @@
             pointer-events: none; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.9));
         }
         #pd-global-container.active { top: 20px; }
-        
         .pd-banner {
             height: 100%; width: 0; color: var(--pd-color, var(--pd-yellow)); margin-right: 0px;
             transition: all 0.3s ease-in-out; 
@@ -243,7 +234,6 @@
         }
 
         .pd-banner marquee { text-transform: uppercase; font-size: 32px; font-weight: 600; transform: translateY(2px); color: var(--pd-color, var(--pd-yellow)); letter-spacing: 2px;}
-        
         .pd-indicator {
             width: 60px; height: 60px; background-color: var(--pd-color, var(--pd-yellow));
             display: flex; align-items: center; justify-content: center;
@@ -726,14 +716,21 @@
                             <div id="lista-policiais" class="flex flex-wrap gap-2 empty:hidden"></div>
                         </div>
 
-                        <div>
-                            <label class="block text-[0.6rem] lg:text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Defesa Legal (Advogados Presentes)</label>
-                            <div class="flex gap-2 mb-3">
-                                <input type="text" id="calc-advogado-nome" class="w-full input-premium rounded-xl px-4 py-2.5 lg:py-3 text-xs lg:text-sm" placeholder="Nome do Advogado">
-                                <input type="text" id="calc-advogado-id" class="w-1/3 input-premium rounded-xl px-4 py-2.5 lg:py-3 text-xs lg:text-sm font-mono" placeholder="OAB/ID">
-                                <button onclick="adicionarAdvogado()" class="bg-white/10 hover:bg-white/20 border border-white/10 text-white px-4 lg:px-5 rounded-xl transition-all"><i class="fa-solid fa-plus"></i></button>
+                        <div class="bg-black/40 rounded-xl border border-white/5 p-4 relative z-10">
+                            <label class="flex items-center gap-2.5 cursor-pointer group/chk mb-2">
+                                <input type="checkbox" id="check-advogado" onchange="toggleAdvogadoUI()" class="w-4 h-4 accent-[#d4af37] rounded bg-white/10 border-white/20">
+                                <span class="text-xs lg:text-sm font-bold text-[#d4af37] tracking-widest uppercase">Acionar Defesa Legal (Advogado Constituído)</span>
+                            </label>
+                            <p class="text-[0.65rem] text-slate-400 mb-3 ml-6">Marque se houver um advogado acompanhando o caso para habilitar a redução de pena (-30%).</p>
+
+                            <div id="box-advogado" class="hidden ml-6 pl-4 border-l-2 border-[#d4af37]/30 mt-3 animate-fade-up">
+                                <div class="flex gap-2 mb-3">
+                                    <input type="text" id="calc-advogado-nome" class="w-full input-premium rounded-xl px-4 py-2.5 lg:py-3 text-xs lg:text-sm" placeholder="Nome do Advogado">
+                                    <input type="text" id="calc-advogado-id" class="w-1/3 input-premium rounded-xl px-4 py-2.5 lg:py-3 text-xs lg:text-sm font-mono" placeholder="OAB/ID">
+                                    <button onclick="adicionarAdvogado()" class="bg-[#d4af37] hover:bg-[#b5952f] text-black px-4 lg:px-5 rounded-xl transition-all font-bold"><i class="fa-solid fa-plus text-black"></i></button>
+                                </div>
+                                <div id="lista-advogados" class="flex flex-wrap gap-2 empty:hidden"></div>
                             </div>
-                            <div id="lista-advogados" class="flex flex-wrap gap-2 empty:hidden"></div>
                         </div>
 
                         <div>
@@ -875,49 +872,56 @@
 
         let isMuted = false;
 
+        // CRÍTICO: Array substituída pelo envio do usuário.
+        // Adicionadas propriedades rpEx e naoAplicar baseadas na descrição original para manter a integridade da Academia.
         const codigoPenal = [
-            { id: 1, crime: "Ameaça", multa: 25000, meses: 20, valor_fianca: 200000, direito_a_fianca: true, description: "Ameaçar causar mal injusto e grave a outrem.", rpEx: "O civil diz claramente: 'Vou te matar quando sair daqui'.", naoAplicar: "O civil diz 'Vou processar vocês' (Ameaça legal não é crime)." },
-            { id: 2, crime: "Apologia ao Crime", multa: 30000, meses: 30, valor_fianca: 200000, direito_a_fianca: true, description: "Fazer apologia a fatos criminosos.", rpEx: "Gritar 'PCC manda', 'CV é o terror'.", naoAplicar: "Citar o nome da facção apenas como resposta a um interrogatório." },
-            { id: 3, crime: "Aviãozinho (6 a 100)", multa: 15000, meses: 20, valor_fianca: 200000, direito_a_fianca: true, description: "Transporte de 6 a 100 unidades de drogas.", rpEx: "Abordado na moto com 50 maconhas.", naoAplicar: "Portar 5 unidades (Configura porte para uso)." },
-            { id: 4, crime: "Calúnia, Injúria, Difamação", multa: 10000, meses: 10, valor_fianca: 200000, direito_a_fianca: true, description: "Atribuir falsamente crime ou ofender a honra.", rpEx: "Civil acusa o policial falsamente: 'Ele roubou meu dinheiro!'.", naoAplicar: "Quando o civil apenas relatar que acha a prisão injusta." },
-            { id: 5, crime: "Corrida Ilegal", multa: 50000, meses: 10, valor_fianca: 200000, direito_a_fianca: true, description: "Rachas e competições não autorizadas.", rpEx: "Dois ou mais carros emparelhados largando juntos.", naoAplicar: "Fugir da polícia (Tentativa de fuga)." },
-            { id: 6, crime: "Cúmplice", multa: 15000, meses: 0, valor_fianca: 100000, direito_a_fianca: true, description: "Ajudar ou facilitar a prática de crime (Agravante).", rpEx: "Motorista de fuga num assalto, ou olheiro.", naoAplicar: "Passageiro de Uber que não tinha conhecimento." },
-            { id: 7, crime: "Dano ao Patrimônio Público", multa: 20000, meses: 15, valor_fianca: 200000, direito_a_fianca: true, description: "Destruir ou danificar bens do Estado.", rpEx: "Chutar a viatura, pichar delegacia.", naoAplicar: "Bater na viatura sem querer devido ao desync." },
-            { id: 8, crime: "Desacato", multa: 50000, meses: 20, valor_fianca: 0, direito_a_fianca: false, description: "Ofender ou humilhar funcionário público.", rpEx: "Chamar o policial de 'Porco', 'Verme' ou cuspir.", naoAplicar: "Reclamação ríspida: 'Sua farda não te faz melhor'." },
-            { id: 11, crime: "Desobediência", multa: 15000, meses: 10, valor_fianca: 200000, direito_a_fianca: true, description: "Desobedecer a ordem legal de funcionário.", rpEx: "Policial dá ordem clara e civil continua correndo.", naoAplicar: "Demorar 3s para responder porque estava digitando (OOC)." },
-            { id: 14, crime: "Dinheiro Sujo", multa: 100000, meses: 20, valor_fianca: 300000, direito_a_fianca: true, description: "Porte de cédulas marcadas/não declaradas.", rpEx: "Pego durante abordagem carregando maços de dinheiro sujo.", naoAplicar: "Dinheiro limpo (legal)." },
-            { id: 15, crime: "Falsa Comunicação", multa: 15000, meses: 10, valor_fianca: 100000, direito_a_fianca: true, description: "Passar trote ou mentir em depoimento.", rpEx: "Ligar no 190 dizendo que há um tiroteio para despistar.", naoAplicar: "Erro honesto na identificação de um suspeito." },
-            { id: 16, crime: "Falsidade Ideológica", multa: 40000, meses: 30, valor_fianca: 400000, direito_a_fianca: true, description: "Mentir identidade.", rpEx: "Fornecer RG falso na delegacia sabendo que é procurado.", naoAplicar: "Não querer falar o nome antes da chegada do advogado." },
-            { id: 17, crime: "Formação de Quadrilha", multa: 50000, meses: 20, valor_fianca: 400000, direito_a_fianca: true, description: "Associação de 3 ou mais pessoas para crime.", rpEx: "Grupo de 3+ vestidos com roupas de facção.", naoAplicar: "2 pessoas apenas." },
-            { id: 18, crime: "Furto", multa: 15000, meses: 10, valor_fianca: 200000, direito_a_fianca: true, description: "Subtrair bem sem violência ou ameaça.", rpEx: "Roubar veículo destrancado sem arma.", naoAplicar: "Usar arma de fogo (Muda para ROUBO)." },
-            { id: 19, crime: "Homicídio Culposo", multa: 15000, meses: 20, valor_fianca: 0, direito_a_fianca: false, description: "Matar sem intenção.", rpEx: "Atropelar pedestre acidentalmente durante perseguição.", naoAplicar: "Atirar de propósito (Doloso)." },
-            { id: 20, crime: "Homicídio Doloso", multa: 25000, meses: 40, valor_fianca: 0, direito_a_fianca: false, description: "Matar com intenção.", rpEx: "Efetuar disparos diretos contra a viatura causando morte.", naoAplicar: "Legítima defesa comprovada." },
-            { id: 21, crime: "Lesão Corporal", multa: 15000, meses: 10, valor_fianca: 200000, direito_a_fianca: true, description: "Agressão física sem intenção de matar.", rpEx: "Bater com taco de beisebol em briga de bar.", naoAplicar: "Empurrão acidental." },
-            { id: 22, crime: "Porte Ostensivo", multa: 25000, meses: 10, valor_fianca: 200000, direito_a_fianca: true, description: "Exibir arma em público (Mesmo legalizada).", rpEx: "Andar pela praça com a pistola na mão.", naoAplicar: "Apenas ter a arma no coldre." },
-            { id: 23, crime: "Arma Branca", multa: 50000, meses: 0, valor_fianca: 0, direito_a_fianca: true, description: "Agravante para uso de facas/tacos.", rpEx: "Pego com canivete escondido.", naoAplicar: "Lanterna normal." },
-            { id: 24, crime: "Arma Leve", multa: 20000, meses: 20, valor_fianca: 200000, direito_a_fianca: true, description: "Porte de Pistolas.", rpEx: "Glock, Five-Seven, etc.", naoAplicar: "Porte legalizado do judiciário." },
-            { id: 25, crime: "Arma Pesada", multa: 25000, meses: 25, valor_fianca: 400000, direito_a_fianca: true, description: "Fuzis, SMGs.", rpEx: "AK-47, M4, Uzi.", naoAplicar: "Arma de paintball permitida." },
-            { id: 26, crime: "Cápsulas/Pólvora", multa: 15000, meses: 10, valor_fianca: 0, direito_a_fianca: true, description: "Materiais para fabricar bala.", rpEx: "Pego com 50 cápsulas vazias.", naoAplicar: "Munição pronta." },
-            { id: 27, crime: "Colete Balístico", multa: 10000, meses: 20, valor_fianca: 200000, direito_a_fianca: true, description: "Uso de colete sem autorização.", rpEx: "Facção usando Kevlar.", naoAplicar: "Policial fora de serviço (se regra permitir)." },
-            { id: 29, crime: "Drogas (1 a 5)", multa: 15000, meses: 0, valor_fianca: 100000, direito_a_fianca: true, description: "Usuário.", rpEx: "Pego com 3 baseados.", naoAplicar: "Pego com 10 (Aviãozinho)." },
-            { id: 30, crime: "Munições (-100)", multa: 15000, meses: 20, valor_fianca: 200000, direito_a_fianca: true, description: "Munições até 100 unid.", rpEx: "90 balas de 9mm.", naoAplicar: "150 balas (Tráfico)." },
-            { id: 31, crime: "Receptação", multa: 20000, meses: 10, valor_fianca: 200000, direito_a_fianca: true, description: "Estar com bem roubado.", rpEx: "Dirigindo carro desmanchado.", naoAplicar: "Carro do próprio amigo alugado." },
-            { id: 32, crime: "Resistência à Prisão", multa: 15000, meses: 10, valor_fianca: 200000, direito_a_fianca: true, description: "Resistência FÍSICA.", rpEx: "Socar o policial ao ser algemado.", naoAplicar: "Apenas xingar (isso é desacato)." },
-            { id: 33, crime: "Roubo", multa: 25000, meses: 10, valor_fianca: 300000, direito_a_fianca: true, description: "Subtrair com arma/ameaça.", rpEx: "Apontar arma e roubar celular.", naoAplicar: "Pegar sem ninguem ver (Furto)." },
-            { id: 34, crime: "Caixa Eletrônico", multa: 30000, meses: 15, valor_fianca: 300000, direito_a_fianca: true, description: "Roubar ATM.", rpEx: "Maçarico no caixa eletrônico.", naoAplicar: "Estava só sacando dinheiro." },
-            { id: 35, crime: "Roubo de Veículo", multa: 20000, meses: 15, valor_fianca: 300000, direito_a_fianca: true, description: "Render para levar carro.", rpEx: "Aponta arma no semáforo.", naoAplicar: "Bater e fugir." },
-            { id: 36, crime: "Sequestro", multa: 100000, meses: 30, valor_fianca: 0, direito_a_fianca: false, description: "Fazer Refém.", rpEx: "Colocar civil no porta-malas.", naoAplicar: "Carona pra amigo amarrado de brincadeira." },
-            { id: 37, crime: "Tráfico Armas (+3)", multa: 200000, meses: 30, valor_fianca: 0, direito_a_fianca: false, description: "3 ou mais armas.", rpEx: "Carregar 4 pistolas para venda.", naoAplicar: "2 armas apenas." },
-            { id: 38, crime: "Tráfico Drogas (+100)", multa: 50000, meses: 25, valor_fianca: 300000, direito_a_fianca: true, description: "101+ Drogas.", rpEx: "Pego na favela com 200 cocaínas.", naoAplicar: "90 cocaínas (Aviãozinho)." },
-            { id: 39, crime: "Tráfico Munições (+100)", multa: 25000, meses: 25, valor_fianca: 400000, direito_a_fianca: true, description: "101+ Munições.", rpEx: "250 balas de fuzil.", naoAplicar: "99 balas." },
-            { id: 40, crime: "Tráfico de Itens Ilegais", multa: 30000, meses: 20, valor_fianca: 200000, direito_a_fianca: true, description: "6+ Lockpicks, Capuz, etc.", rpEx: "Porta malas com 10 lockpicks master.", naoAplicar: "5 lockpicks." },
-            { id: 41, crime: "Porte Itens Ilegais", multa: 15000, meses: 10, valor_fianca: 100000, direito_a_fianca: true, description: "1 a 5 Lockpicks/Algemas.", rpEx: "Revista encontra 2 lockpicks.", naoAplicar: "Itens de loja normal." },
-            { id: 42, crime: "Tentativa de Fuga", multa: 50000, meses: 15, valor_fianca: 200000, direito_a_fianca: true, description: "Fugir de abordagem.", rpEx: "Giroflex ligado e o carro acelera.", naoAplicar: "Parou 1 quarteirão depois por não ver o giro." },
-            { id: 43, crime: "Tentativa de Roubo/Furto", multa: 25000, meses: 10, valor_fianca: 200000, direito_a_fianca: true, description: "Crime não concluído.", rpEx: "Pego tentando estourar fechadura.", naoAplicar: "Já levou o carro." },
-            { id: 44, crime: "Tentativa de Homicídio", multa: 10000, meses: 25, valor_fianca: 0, direito_a_fianca: false, description: "Atirar sem matar.", rpEx: "Disparou no policial e ele sobreviveu.", naoAplicar: "Policial morreu (Homicídio Doloso)." },
-            { id: 45, crime: "Suborno", multa: 40000, meses: 25, valor_fianca: 400000, direito_a_fianca: true, description: "Oferecer vantagem indevida.", rpEx: "Preso diz: 'Te dou 50k pra me soltar'.", naoAplicar: "Sugerir acordo com o advogado legal." },
-            { id: 46, crime: "Randola Recrutamento", multa: 0, meses: 100, valor_fianca: 0, direito_a_fianca: false, description: "Antirp ao ser recrutado.", rpEx: "Civil atrapalhando o recrutamento ou a ordem dele.", naoAplicar: "Civil entra na DP ou pede informações." },
-            { id: 47, crime: "Condução Imprudente", multa: 10000, meses: 10, valor_fianca: 100000, direito_a_fianca: true, description: "Direção perigosa.", rpEx: "Andar na contramão cortando a praça.", naoAplicar: "Bater no poste por desync." }
+            { id: 1, crime: "Ameaça", multa: 25000, meses: 20, valor_fianca: 200000, direito_a_fianca: true, description: "AMEAÇAR ALGUÉM, POR PALAVRA, ESCRITO OU GESTO, OU QUALQUER OUTRO MEIO SIMBÓLICO, DE CAUSAR-LHE MAL INJUSTO E GRAVE.", rpEx: "O civil diz claramente: 'Vou te matar quando sair daqui'.", naoAplicar: "O civil diz 'Vou processar vocês' (Ameaça legal não é crime)." },
+            { id: 2, crime: "Apologia ao Crime", multa: 30000, meses: 30, valor_fianca: 200000, direito_a_fianca: true, description: "APOLOGIA AO CRIME REFERE-SE À DEFESA, PROMOÇÃO OU JUSTIFICAÇÃO DE ATIVIDADES CRIMINOSAS POR MEIO DE EXPRESSÕES VERBAIS, ESCRITAS OU OUTRAS FORMAS DE COMUNICAÇÃO.", rpEx: "Gritar 'PCC manda', 'CV é o terror'.", naoAplicar: "Citar o nome da facção apenas como resposta a um interrogatório." },
+            { id: 3, crime: "Aviãozinho (6 a 100)", multa: 15000, meses: 20, valor_fianca: 200000, direito_a_fianca: true, description: "PORTE DE 6 A 100 UNIDADES DE ITENS ILÍCITOS/DROGAS ATUANDO COMO ENTREGADOR.", rpEx: "Abordado na moto com 50 maconhas.", naoAplicar: "Portar 5 unidades (Configura porte para uso)." },
+            { id: 4, crime: "Calúnia, Injuria ou Difamação", multa: 10000, meses: 10, valor_fianca: 200000, direito_a_fianca: true, description: "CALÚNIA É A AÇÃO DE PROFERIR FALSAS E DIFAMATÓRIAS DECLARAÇÕES VERBAIS CONTRA ALGUÉM, COM O OBJETIVO DE PREJUDICAR A SUA REPUTAÇÃO.", rpEx: "Civil acusa o policial falsamente: 'Ele roubou meu dinheiro!'.", naoAplicar: "Quando o civil apenas relatar que acha a prisão injusta." },
+            { id: 5, crime: "Corrida Ilegal", multa: 50000, meses: 10, valor_fianca: 200000, direito_a_fianca: true, description: "PARTICIPAR DE CORRIDAS ILEGAIS (NÃO REGULAMENTADAS).", rpEx: "Dois ou mais carros emparelhados largando juntos.", naoAplicar: "Fugir da polícia (Tentativa de fuga)." },
+            { id: 6, crime: "Cúmplice", multa: 15000, meses: 0, valor_fianca: 100000, direito_a_fianca: true, description: "AJUDAR, FACILITAR OU ENCOBRIR A PRÁTICA DE UM CRIME.", rpEx: "Motorista de fuga num assalto, ou olheiro.", naoAplicar: "Passageiro de Uber que não tinha conhecimento." },
+            { id: 7, crime: "Dano ao patrimonio Publico", multa: 20000, meses: 15, valor_fianca: 200000, direito_a_fianca: true, description: "INTENCIONALMENTE CAUSAR DANOS À QUALQUER PROPRIEDADE DO GOVERNO.", rpEx: "Chutar a viatura, pichar delegacia.", naoAplicar: "Bater na viatura sem querer devido ao desync." },
+            { id: 8, crime: "Desacato 1", multa: 50000, meses: 20, valor_fianca: 0, direito_a_fianca: false, description: "O DESACATO CONSISTE EM ATO PRATICADO OU PALAVRAS PROFERIDAS QUE GEREM VEXAME, HUMILHAÇÃO AO FUNCIONÁRIO PÚBLICO.", rpEx: "Chamar o policial de 'Porco', 'Verme' ou cuspir.", naoAplicar: "Reclamação ríspida: 'Sua farda não te faz melhor'." },
+            { id: 9, crime: "Desacato 2", multa: 50000, meses: 20, valor_fianca: 0, direito_a_fianca: false, description: "O DESACATO CONSISTE EM ATO PRATICADO OU PALAVRAS PROFERIDAS QUE GEREM VEXAME, HUMILHAÇÃO AO FUNCIONÁRIO PÚBLICO.", rpEx: "Ofensas repetidas e graves a corporação.", naoAplicar: "Reclamação ríspida: 'Sua farda não te faz melhor'." },
+            { id: 10, crime: "Desacato 3", multa: 50000, meses: 20, valor_fianca: 0, direito_a_fianca: false, description: "O DESACATO CONSISTE EM ATO PRATICADO OU PALAVRAS PROFERIDAS QUE GEREM VEXAME, HUMILHAÇÃO AO FUNCIONÁRIO PÚBLICO.", rpEx: "Ataque direto à honra do policial diversas vezes.", naoAplicar: "Reclamação ríspida: 'Sua farda não te faz melhor'." },
+            { id: 11, crime: "Desobediencia 1", multa: 15000, meses: 0, valor_fianca: 200000, direito_a_fianca: true, description: "DESOBEDIÊNCIA PERANTE UM OFICIAL PÚBLICO, NA FORMA DE COMPORTAMENTO QUE SE OPÕE OU DESAFIA A AUTORIDADE.", rpEx: "Policial dá ordem clara e civil não colabora de primeira.", naoAplicar: "Demorar 3s para responder porque estava digitando (OOC)." },
+            { id: 12, crime: "Desobediencia 2", multa: 15000, meses: 0, valor_fianca: 200000, direito_a_fianca: true, description: "DESOBEDIÊNCIA PERANTE UM OFICIAL PÚBLICO, NA FORMA DE COMPORTAMENTO QUE SE OPÕE OU DESAFIA A AUTORIDADE.", rpEx: "Civil se recusa ativamente a entregar o RG após 2 ordens.", naoAplicar: "Demorar 3s para responder porque estava digitando (OOC)." },
+            { id: 13, crime: "Desobediencia 3", multa: 15000, meses: 10, valor_fianca: 200000, direito_a_fianca: true, description: "DESOBEDIÊNCIA PERANTE UM OFICIAL PÚBLICO, NA FORMA DE COMPORTAMENTO QUE SE OPÕE OU DESAFIA A AUTORIDADE.", rpEx: "Civil continua correndo ou nega totalmente qualquer comando.", naoAplicar: "Demorar 3s para responder porque estava digitando (OOC)." },
+            { id: 14, crime: "Dinheiro Sujo", multa: 100000, meses: 20, valor_fianca: 300000, direito_a_fianca: true, description: "APREENSÕES DE DINHEIRO SUJO ILEGAL.", rpEx: "Pego durante abordagem carregando maços de dinheiro sujo.", naoAplicar: "Dinheiro limpo (legal)." },
+            { id: 15, crime: "Falsa Comunicação de Crime", multa: 15000, meses: 10, valor_fianca: 100000, direito_a_fianca: true, description: "INTENCIONALMENTE FAZENDO UMA DECLARAÇÃO FALSA PARA UM FUNCIONÁRIO DA LEI EM SERVIÇO OU 190 MENSAGEM DE ENVIO.", rpEx: "Ligar no 190 dizendo que há um tiroteio para despistar.", naoAplicar: "Erro honesto na identificação de um suspeito." },
+            { id: 16, crime: "Falsidade Ideologica", multa: 40000, meses: 30, valor_fianca: 400000, direito_a_fianca: true, description: "OMITIR A VERDADE OU INSERIR UMA DECLARAÇÃO FALSA EM DOCUMENTOS PÚBLICOS OU PARTICULARES COM O OBJETIVO DE PREJUDICAR UM DIREITO.", rpEx: "Fornecer RG falso na delegacia sabendo que é procurado.", naoAplicar: "Não querer falar o nome antes da chegada do advogado." },
+            { id: 17, crime: "Formação de Quadrilha", multa: 50000, meses: 20, valor_fianca: 400000, direito_a_fianca: true, description: "CONSISTE NA ASSOCIAÇÃO DE 3 OU MAIS PESSOAS QUE SE DEDICAM A COMETER UM OU MAIS DELITOS.", rpEx: "Grupo de 3+ vestidos com roupas de facção.", naoAplicar: "2 pessoas apenas." },
+            { id: 18, crime: "Furto", multa: 15000, meses: 10, valor_fianca: 200000, direito_a_fianca: true, description: "SUBTRAIR, PARA SI OU PARA OUTREM, COISA ALHEIA MÓVEL, SEM GRAVE AMEAÇA.", rpEx: "Roubar veículo destrancado sem arma.", naoAplicar: "Usar arma de fogo (Muda para ROUBO)." },
+            { id: 19, crime: "Homicidio Culposo (sem intenção)", multa: 15000, meses: 20, valor_fianca: 0, direito_a_fianca: false, description: "QUANDO UMA PESSOA TOMA ALGUMA AÇÃO, E POR IMPERÍCIA, IMPRUDÊNCIA OU NEGLIGÊNCIA, CAUSA A MORTE DE OUTRA PESSOA.", rpEx: "Atropelar pedestre acidentalmente durante perseguição.", naoAplicar: "Atirar de propósito (Doloso)." },
+            { id: 20, crime: "Homicidio Doloso (Com intenção)", multa: 25000, meses: 40, valor_fianca: 0, direito_a_fianca: false, description: "QUANDO UMA PESSOA, TOMA UMA AÇÃO DELIBERADA E MALICIOSA, NO CALOR DO MOMENTO E AGE INTENCIONALMENTE, CAUSANDO A MORTE DE OUTRA PESSOA.", rpEx: "Efetuar disparos diretos contra a viatura causando morte.", naoAplicar: "Legítima defesa comprovada." },
+            { id: 21, crime: "Lesão Corporal", multa: 15000, meses: 10, valor_fianca: 200000, direito_a_fianca: true, description: "CAUSAR DANOS SIGNIFICATIVOS A OUTRA PESSOA ATRAVÉS DO TOQUE INTENCIONAL OFENSIVO OU PREJUDICIAL.", rpEx: "Bater com taco de beisebol em briga de bar.", naoAplicar: "Empurrão acidental." },
+            { id: 22, crime: "Porte de Arma em público", multa: 25000, meses: 10, valor_fianca: 200000, direito_a_fianca: true, description: "EXIBIR ARMA DE FOGO EM VIAS PÚBLICAS DE FORMA OSTENSIVA E INTIMIDADORA.", rpEx: "Andar pela praça com a pistola na mão.", naoAplicar: "Apenas ter a arma no coldre." },
+            { id: 23, crime: "Porte de Arma Branca", multa: 50000, meses: 0, valor_fianca: 0, direito_a_fianca: true, description: "PORTAR DE QUALQUER FERRAMENTA DE QUE POSSA SER UTILIZADA COMO ARMA CORPO A CORPO DE MANEIRA IMPRUDENTE.", rpEx: "Pego com canivete escondido.", naoAplicar: "Lanterna normal." },
+            { id: 24, crime: "Porte de Arma Leve", multa: 20000, meses: 20, valor_fianca: 200000, direito_a_fianca: true, description: "PORTAR 1 OU 2 FAJUTAS E/OU FIVE SEVEN. (IGUAIS OU DIFERENTES MODELOS)", rpEx: "Glock, Five-Seven, etc.", naoAplicar: "Porte legalizado do judiciário." },
+            { id: 25, crime: "Porte de Arma Pesada", multa: 25000, meses: 25, valor_fianca: 400000, direito_a_fianca: true, description: "PORTAR 1 OU 2 SENDO: MP5, TEC-9, AK-47, AK-MK2, G3, UZI E/OU SHOTGUN.", rpEx: "AK-47, M4, Uzi.", naoAplicar: "Arma de paintball permitida." },
+            { id: 26, crime: "Porte de Capsulas", multa: 15000, meses: 10, valor_fianca: 0, direito_a_fianca: true, description: "POSSE DE COMPONENTES DE FABRICAÇÃO DE MUNIÇÃO, SENDO: CÁPSULAS E/OU PÓLVORA.", rpEx: "Pego com 50 cápsulas vazias.", naoAplicar: "Munição pronta." },
+            { id: 27, crime: "Porte de Colete Balistico", multa: 10000, meses: 20, valor_fianca: 200000, direito_a_fianca: true, description: "PORTAR DE 1 ATÉ 3 COLETES À PROVA DE BALAS.", rpEx: "Facção usando Kevlar.", naoAplicar: "Policial fora de serviço (se regra permitir)." },
+            { id: 28, crime: "Porte de componentes narcoticos", multa: 10000, meses: 10, valor_fianca: 0, direito_a_fianca: true, description: "POSSE DE MATÉRIA-PRIMA USADA PARA FABRICAÇÃO DE NARCÓTICOS.", rpEx: "Folhas de maconha ou pasta base.", naoAplicar: "Droga já refinada." },
+            { id: 29, crime: "Porte de Drogas (1 a 5)", multa: 15000, meses: 0, valor_fianca: 100000, direito_a_fianca: true, description: "POSSE DE PEQUENA QUANTIDADE DE ENTORPECENTES (1 A 5 UNIDADES) PARA CONSUMO PRÓPRIO.", rpEx: "Pego com 3 baseados.", naoAplicar: "Pego com 10 (Aviãozinho)." },
+            { id: 30, crime: "Porte de Itens Munições -100", multa: 15000, meses: 20, valor_fianca: 200000, direito_a_fianca: true, description: "ENQUADRA-SE COMO PORTE DE MUNIÇÃO A QUANTIDADE DE 1 A 100 UNIDADES.", rpEx: "90 balas de 9mm.", naoAplicar: "150 balas (Tráfico)." },
+            { id: 31, crime: "Receptação de veiculo", multa: 20000, meses: 10, valor_fianca: 200000, direito_a_fianca: true, description: "ADQUIRIR, RECEBER, TRANSPORTAR OU OCULTAR VEÍCULO QUE SABE SER PRODUTO DE CRIME.", rpEx: "Dirigindo carro desmanchado.", naoAplicar: "Carro do próprio amigo alugado." },
+            { id: 32, crime: "Resistencia a prisao", multa: 15000, meses: 10, valor_fianca: 200000, direito_a_fianca: true, description: "OPOR-SE À EXECUÇÃO DE ATO LEGAL OU ABORDAGEM MEDIANTE VIOLÊNCIA OU AMEAÇA.", rpEx: "Socar o policial ao ser algemado.", naoAplicar: "Apenas xingar (isso é desacato)." },
+            { id: 33, crime: "Roubo", multa: 25000, meses: 10, valor_fianca: 300000, direito_a_fianca: true, description: "SUBTRAIR, PARA SI OU PARA OUTREM, COISA ALHEIA MÓVEL, ATRAVÉS DO USO DE FORÇA.", rpEx: "Apontar arma e roubar celular.", naoAplicar: "Pegar sem ninguem ver (Furto)." },
+            { id: 34, crime: "Roubo de Caixa eletronico", multa: 30000, meses: 15, valor_fianca: 300000, direito_a_fianca: true, description: "ARROMBAMENTO, EXPLOSÃO OU VIOLAÇÃO DE CAIXAS ELETRÔNICOS PARA SUBTRAÇÃO DE VALORES.", rpEx: "Maçarico no caixa eletrônico.", naoAplicar: "Estava só sacando dinheiro." },
+            { id: 35, crime: "Roubo de veiculo", multa: 20000, meses: 15, valor_fianca: 300000, direito_a_fianca: true, description: "SUBTRAIR VEÍCULO ALHEIO MEDIANTE GRAVE AMEAÇA OU VIOLÊNCIA CONTRA O CONDUTOR.", rpEx: "Aponta arma no semáforo.", naoAplicar: "Bater e fugir." },
+            { id: 36, crime: "Sequestro", multa: 100000, meses: 30, valor_fianca: 0, direito_a_fianca: false, description: "APREENDER E LEVAR ILEGALMENTE UMA PESSOA PELA FORÇA OU FRAUDE, OU APREENDER E DETER UMA PESSOA CONTRA A SUA VONTADE.", rpEx: "Colocar civil no porta-malas.", naoAplicar: "Carona pra amigo amarrado de brincadeira." },
+            { id: 37, crime: "Trafico de Armas +3", multa: 200000, meses: 30, valor_fianca: 0, direito_a_fianca: false, description: "PORTAR 3 OU MAIS ARMAS DE FOGO.", rpEx: "Carregar 4 pistolas para venda.", naoAplicar: "2 armas apenas." },
+            { id: 38, crime: "Trafico de Drogas +100", multa: 50000, meses: 25, valor_fianca: 300000, direito_a_fianca: true, description: "POSSUIR 101 OU MAIS UNIDADES DE DROGAS.", rpEx: "Pego na favela com 200 cocaínas.", naoAplicar: "90 cocaínas (Aviãozinho)." },
+            { id: 39, crime: "Trafico de Munições+100", multa: 25000, meses: 25, valor_fianca: 400000, direito_a_fianca: true, description: "ENQUADRA-SE COMO TRÁFICO DE MUNIÇÕES PORTAR 101 OU MAIS MUNIÇÕES INDEPENDENTE DO TIPO.", rpEx: "250 balas de fuzil.", naoAplicar: "99 balas." },
+            { id: 40, crime: "Trafico de Itens Ilegais", multa: 30000, meses: 20, valor_fianca: 200000, direito_a_fianca: true, description: "POSSUIR 6 OU MAIS PRODUTOS ILEGAIS (LOCKPICK, CAPUZ, ALGEMAS, NITRO, C4, ETC).", rpEx: "Porta malas com 10 lockpicks master.", naoAplicar: "5 lockpicks." },
+            { id: 41, crime: "Porte de Itens Ilegais", multa: 15000, meses: 10, valor_fianca: 100000, direito_a_fianca: true, description: "POSSUIR ENTRE 1 A 5 PRODUTOS ILEGAIS (LOCKPICK, CAPUZ, ALGEMAS, NITRO, C4, ETC).", rpEx: "Revista encontra 2 lockpicks.", naoAplicar: "Itens de loja normal." },
+            { id: 42, crime: "tentativa de fuga", multa: 50000, meses: 15, valor_fianca: 200000, direito_a_fianca: true, description: "DESOBEDIÊNCIA A ORDEM DE PARADA PELA AUTORIDADE POLICIAL.", rpEx: "Giroflex ligado e o carro acelera.", naoAplicar: "Parou 1 quarteirão depois por não ver o giro." },
+            { id: 43, crime: "Tentativa de Roubo/Furto", multa: 25000, meses: 10, valor_fianca: 200000, direito_a_fianca: true, description: "TENTAR SUBTRAIR BEM ALHEIO, NÃO SE CONSUMANDO O ATO POR MOTIVOS ALHEIOS À VONTADE DO AGENTE.", rpEx: "Pego tentando estourar fechadura.", naoAplicar: "Já levou o carro." },
+            { id: 44, crime: "Tentativa de Homicidio", multa: 10000, meses: 25, valor_fianca: 0, direito_a_fianca: false, description: "QUANDO UMA PESSOA TOMA ALGUMA AÇÃO, DELIBERADA E MALICIOSAMENTE, COM A INTENÇÃO DE CAUSAR A MORTE DE OUTRA PESSOA E NÃO TEM SUCESSO.", rpEx: "Disparou no policial e ele sobreviveu.", naoAplicar: "Policial morreu (Homicídio Doloso)." },
+            { id: 45, crime: "Tentaitva de Suborno", multa: 40000, meses: 25, valor_fianca: 400000, direito_a_fianca: true, description: "SUBORNO ATO OU EFEITO DE SUBORNAR; COMPRA, DINHEIRO OU VALOR QUE SE SUBORNA OU SE TENTA SUBORNAR.", rpEx: "Preso diz: 'Te dou 50k pra me soltar'.", naoAplicar: "Sugerir acordo com o advogado legal." },
+            { id: 46, crime: "Randola Recrutamento", multa: 0, meses: 100, valor_fianca: 0, direito_a_fianca: false, description: "ALICIAR, COAGIR OU RECRUTAR ATIVAMENTE CIDADÃOS PARA INTEGRAR ORGANIZAÇÕES CRIMINOSAS.", rpEx: "Civil atrapalhando o recrutamento ou a ordem dele.", naoAplicar: "Civil entra na DP ou pede informações." },
+            { id: 47, crime: "Condução imprudente", multa: 10000, meses: 10, valor_fianca: 100000, direito_a_fianca: true, description: "É caracterizada por comportamentos precipitados, arriscados e desprovidos de cautela, onde o motorista tem consciência do risco, mas escolhe ignorá-lo.", rpEx: "Andar na contramão cortando a praça.", naoAplicar: "Bater no poste por desync." }
         ];
 
         const audioError = new Audio('https://cdn.uppbeat.io/audio-files/d927511931994ce45cf5b95b34e23536/7c858b78fee58506ad81e937979386ff/f8e7d14e5e9d2866ac93287bc9b9fd12/STREAMING-ui-error-negative-mallets-om-fx-1-00-01.mp3');
@@ -1093,7 +1097,6 @@
             const originalText = btn.innerHTML;
             btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Processando...';
             
-            // Garantir que as fontes carregaram antes do print
             await document.fonts.ready;
 
             const oldTransform = element.style.transform;
@@ -1291,10 +1294,29 @@
 
         document.getElementById('crimeSearchInput').addEventListener('input', (e) => renderCrimesCalc(e.target.value));
 
+        // Lógica da Interface do Advogado (Nova Feature)
+        function toggleAdvogadoUI() {
+            const isChecked = document.getElementById('check-advogado').checked;
+            const box = document.getElementById('box-advogado');
+            if (isChecked) {
+                box.classList.remove('hidden');
+            } else {
+                box.classList.add('hidden');
+                advogadosEnvolvidos = [];
+                renderAdvogados();
+                updateCalculadoraUI();
+            }
+        }
+
         function limparCalculadora(showMsg = false) {
             selectedCrimesForCalc = []; oficiaisEnvolvidos = []; advogadosEnvolvidos = [];
             ['calc-infrator-nome', 'calc-infrator-passaporte', 'calc-descricao', 'calc-policial-nome', 'calc-policial-id', 'calc-advogado-nome', 'calc-advogado-id'].forEach(id => document.getElementById(id).value = '');
             ['red-primario', 'red-confesso', 'red-fianca'].forEach(id => document.getElementById(id).checked = false);
+            
+            // Reseta a interface do advogado
+            document.getElementById('check-advogado').checked = false;
+            toggleAdvogadoUI();
+
             if(rostoImageFile) document.getElementById('rm-rosto').click();
             if(mdtImageFile) document.getElementById('rm-mdt').click();
             
@@ -1346,6 +1368,7 @@
             alerta.classList.add('hidden');
 
             let red = 0;
+            // Se houver advogado inserido (e logo a checkbox está ativa), reduz 30%
             if(advogadosEnvolvidos.length > 0) red += 0.30;
             if(document.getElementById('red-primario').checked) red += 0.20;
             if(document.getElementById('red-confesso').checked) red += 0.20;
@@ -1385,7 +1408,6 @@
             });
         }
 
-        // Upload Slots Duplos (Rosto + MDT)
         function setupDropzone(idDrop, idInput, idPrev, idPlace, idRm, isRosto) {
             const drop = document.getElementById(idDrop), inp = document.getElementById(idInput), prev = document.getElementById(idPrev), place = document.getElementById(idPlace), rm = document.getElementById(idRm);
             function process(file) {
